@@ -1,0 +1,190 @@
+erDiagram
+    direction TB
+    "Diagrama Entidade-Relacionamento (DER) - Projeto Ducks"
+
+    Usuarios {
+        int UsuarioID PK
+        string NomeUsuario
+        string Email
+        varbinary HashSenha
+        varbinary SaltSenha
+        bit EstaAtivo
+        datetime2 CriadoEm
+    }
+
+    Papeis {
+        int PapelID PK
+        string NomePapel
+        string Descricao
+    }
+
+    UsuarioPapeis {
+        int UsuarioID PK, FK
+        int PapelID PK, FK
+        datetime2 AtribuidoEm
+    }
+
+    Materias {
+        int MateriaID PK
+        string NomeMateria
+        string Descricao
+    }
+
+    TrilhasAprendizagem {
+        int TrilhaID PK
+        string NomeTrilha
+        string Descricao
+        int MateriaID FK
+        string Status
+        int CriadoPorUsuarioID FK
+        int AprovadoPorUsuarioID FK
+    }
+
+    Modulos {
+        int ModuloID PK
+        int TrilhaID FK
+        string Titulo
+        int IndiceOrdem
+    }
+
+    Aulas {
+        int AulaID PK
+        int ModuloID FK
+        string Titulo
+        string UrlConteudo
+        int IndiceOrdem
+        string Status
+    }
+
+    ProgressoUsuario {
+        int ProgressoID PK
+        int UsuarioID FK
+        int AulaID FK
+        datetime2 ConcluidoEm
+    }
+
+    UsuarioTrilhas {
+        int UsuarioTrilhaID PK
+        int UsuarioID FK
+        int TrilhaID FK
+        decimal ProgressoPercentual
+        string Status
+    }
+
+    Questoes {
+        int QuestaoID PK
+        int MateriaID FK
+        string TextoQuestao
+        string TipoQuestao
+        int Peso
+        string NivelDificuldade
+        string Status
+    }
+
+    AlternativasQuestao {
+        int AlternativaID PK, FK
+        int QuestaoID PK, FK
+        string TextoAlternativa
+        bit EhCorreta
+    }
+
+    Provas {
+        int ProvaID PK
+        string Titulo
+        string TipoProva
+        int MateriaID FK
+        int TotalQuestoes
+    }
+
+    ProvaQuestoes {
+        int ProvaID PK, FK
+        int QuestaoID PK, FK
+        int OrdemQuestao
+    }
+
+    ProvasUsuario {
+        int ProvaUsuarioID PK
+        int UsuarioID FK
+        int ProvaID FK
+        datetime2 IniciadoEm
+        datetime2 ConcluidoEm
+        int Pontuacao
+        string Status
+    }
+
+    RespostasProvasUsuario {
+        int RespostaUsuarioID PK
+        int ProvaUsuarioID FK
+        int QuestaoID FK
+        int AlternativaSelecionadaID FK
+        bit EhCorreta
+    }
+
+    XPUsuario {
+        int UsuarioID PK, FK
+        int TotalXP
+        int NivelAtualID FK
+    }
+
+    NiveisGamificacao {
+        int NivelID PK
+        int NumeroNivel
+        int XPMinimo
+        string TituloNivel
+    }
+
+    Conquistas {
+        int ConquistaID PK
+        string NomeConquista
+        string Descricao
+        string UrlIcone
+    }
+
+    ConquistasUsuario {
+        int UsuarioID PK, FK
+        int ConquistaID PK, FK
+        datetime2 ConquistadoEm
+    }
+
+    LogsAuditoria {
+        int LogID PK
+        int UsuarioID FK
+        string Acao
+        string Detalhes
+        datetime2 CriadoEm
+    }
+
+    %% Relacionamentos
+    Usuarios ||--o{ UsuarioPapeis : "possui"
+    Papeis ||--o{ UsuarioPapeis : "atribuído a"
+    
+    Materias ||--o{ TrilhasAprendizagem : "categoriza"
+    TrilhasAprendizagem ||--o{ Modulos : "contém"
+    Modulos ||--o{ Aulas : "possui"
+    
+    Usuarios ||--o{ ProgressoUsuario : "realiza"
+    Aulas ||--o{ ProgressoUsuario : "registra progresso"
+    
+    Usuarios ||--o{ UsuarioTrilhas : "inscreve-se"
+    TrilhasAprendizagem ||--o{ UsuarioTrilhas : "recebe inscrições"
+    
+    Materias ||--o{ Questoes : "possui"
+    Questoes ||--|{ AlternativasQuestao : "contém"
+    
+    Materias ||--o{ Provas : "gera"
+    Provas ||--|{ ProvaQuestoes : "composta por"
+    Questoes ||--o{ ProvaQuestoes : "incluída em"
+    
+    Usuarios ||--o{ ProvasUsuario : "executa"
+    Provas ||--o{ ProvasUsuario : "gerencia tentativas"
+    
+    ProvasUsuario ||--o{ RespostasProvasUsuario : "contém"
+    AlternativasQuestao ||--o{ RespostasProvasUsuario : "selecionada em"
+    
+    Usuarios ||--|| XPUsuario : "acumula"
+    NiveisGamificacao ||--o{ XPUsuario : "classifica"
+    
+    Usuarios ||--o{ ConquistasUsuario : "conquista"
+    Conquistas ||--o{ ConquistasUsuario : "atribuída a"
+    
+    Usuarios ||--o{ LogsAuditoria : "gera"

@@ -1,0 +1,88 @@
+erDiagram
+    direction TB
+    "DER Resumido — Plataforma Ducks"
+
+    Usuarios {
+        int UsuarioID PK
+        string NomeUsuario
+        string Email
+    }
+
+    Papeis {
+        int PapelID PK
+        string NomePapel
+    }
+
+    Materias {
+        int MateriaID PK
+        string NomeMateria
+    }
+
+    TrilhasAprendizagem {
+        int TrilhaID PK
+        string NomeTrilha
+        int MateriaID FK
+    }
+
+    Modulos {
+        int ModuloID PK
+        int TrilhaID FK
+        string Titulo
+    }
+
+    Aulas {
+        int AulaID PK
+        int ModuloID FK
+        string Titulo
+    }
+
+    Questoes {
+        int QuestaoID PK
+        int MateriaID FK
+        string TipoQuestao
+    }
+
+    AlternativasQuestao {
+        int AlternativaID PK, FK
+        int QuestaoID PK, FK
+        bit EhCorreta
+    }
+
+    Provas {
+        int ProvaID PK
+        string Titulo
+        int MateriaID FK
+    }
+
+    ProvasUsuario {
+        int ProvaUsuarioID PK
+        int UsuarioID FK
+        int ProvaID FK
+        int Pontuacao
+    }
+
+    XPUsuario {
+        int UsuarioID PK, FK
+        int TotalXP
+        int NivelAtualID FK
+    }
+
+    %% Relacionamentos Macro
+    Usuarios ||--o{ UsuarioPapeis : "possui papéis"
+    Papeis ||--o{ UsuarioPapeis : "atribuído a"
+    
+    Materias ||--o{ TrilhasAprendizagem : "categoriza"
+    TrilhasAprendizagem ||--o{ Modulos : "contém"
+    Modulos ||--o{ Aulas : "possui"
+    
+    Usuarios ||--o{ UsuarioTrilhas : "inscreve-se"
+    TrilhasAprendizagem ||--o{ UsuarioTrilhas : "possui alunos"
+    
+    Materias ||--o{ Questoes : "agrupa"
+    Questoes ||--|{ AlternativasQuestao : "possui opções"
+    
+    Materias ||--o{ Provas : "gera avaliações"
+    Usuarios ||--o{ ProvasUsuario : "realiza"
+    Provas ||--o{ ProvasUsuario : "sedia"
+    
+    Usuarios ||--|| XPUsuario : "acumula XP"
