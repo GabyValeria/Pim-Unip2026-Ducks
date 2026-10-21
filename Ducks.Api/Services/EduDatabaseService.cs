@@ -69,4 +69,45 @@ public class EduDatabaseService
         var query = "SELECT UsuarioID AS UsuarioId, NomeUsuario, Email FROM Usuarios WHERE Email = @Email AND EstaAtivo = 1";
         return await connection.QueryFirstOrDefaultAsync<UsuarioDto>(query, new { Email = email });
     }
+
+    // --- RECURSOS DE GAMIFICAÇÃO E RECOMPENSAS ---
+
+    // Executa a Stored Procedure oficial para verificar e conceder novas conquistas/medalhas
+    public async Task VerificarEConcederConquistasAsync(int usuarioId)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        var parameters = new DynamicParameters();
+        parameters.Add("@UsuarioID", usuarioId);
+
+        await connection.ExecuteAsync(
+            "sp_VerificarEConcederConquistas", 
+            parameters, 
+            commandType: CommandType.StoredProcedure);
+    }
+
+    // Consulta o saldo total de XP e o nível atual do usuário na tabela XPUsuario e NiveisGamificacao
+    public async Task<object?> ObterXPUsuarioAsync(int usuarioId)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        var query = @"
+            SELECT x.UsuarioID, x.TotalXP, n.NomeNivel AS NivelAtual, x.AtualizadoEm
+            FROM XPUsuario x
+            INNER JOIN NiveisGamificacao n ON x.NivelAtualID = n.NivelID
+            WHERE x.UsuarioID = @UsuarioId";
+
+        return await connection.QueryFirstOrDefaultAsync<object>(query, new { UsuarioId = usuarioId });
+    }
+
+    // Lista todas as conquistas e medalhas desbloqueadas pelo usuário (sem ranking)
+    public async Task<IEnumerable<object>> ObterConquistasUsuarioAsync(int usuarioId)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        var query = @"
+            SELECT c.ConquistaID, c.NomeConquista, c.Descricao, cu.ConquistadoEm
+            FROM ConquistasUsuario cu
+            INNER JOIN Conquistas c ON cu.ConquistaID = c.ConquistaID
+            WHERE cu.UsuarioID = @UsuarioId";
+
+        return await connection.QueryAsync<object>(query, new { UsuarioId = usuarioId });
+    }
 }
