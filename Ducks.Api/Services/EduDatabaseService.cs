@@ -4,6 +4,13 @@ using Microsoft.Data.SqlClient;
 
 namespace Ducks.Api.Services;
 
+public class UsuarioDto
+{
+    public int UsuarioId { get; set; }
+    public string NomeUsuario { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+
 public class EduDatabaseService
 {
     private readonly string _connectionString;
@@ -14,7 +21,6 @@ public class EduDatabaseService
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' não encontrada.");
     }
 
-    // Exemplo de integração segura com a stored procedure sp_AutenticarUsuario
     public async Task<int?> AutenticarUsuarioAsync(string email, string senhaHash)
     {
         using var connection = new SqlConnection(_connectionString);
@@ -22,7 +28,6 @@ public class EduDatabaseService
         parameters.Add("@Email", email);
         parameters.Add("@HashSenha", senhaHash);
         
-        // Retorna o UsuarioID se bem-sucedido ou null
         var resultado = await connection.QueryFirstOrDefaultAsync<int?>(
             "sp_AutenticarUsuario", 
             parameters, 
@@ -31,7 +36,6 @@ public class EduDatabaseService
         return resultado;
     }
 
-    // Exemplo de submissão transacional de prova e atribuição de XP (sp_SubmeterRespostaProva)
     public async Task SubmeterRespostaProvaAsync(int provaUsuarioId, int questaoId, int alternativaId)
     {
         using var connection = new SqlConnection(_connectionString);
@@ -44,5 +48,25 @@ public class EduDatabaseService
             "sp_SubmeterRespostaProva", 
             parameters, 
             commandType: CommandType.StoredProcedure);
+    }
+
+    public async Task<List<string>> ObterPapeisUsuarioAsync(int usuarioId)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        var query = @"
+            SELECT p.NomePapel 
+            FROM UsuarioPapeis up
+            INNER JOIN Papeis p ON up.PapelID = p.PapelID
+            WHERE up.UsuarioID = @UsuarioId";
+
+        var papeis = await connection.QueryAsync<string>(query, new { UsuarioId = usuarioId });
+        return papeis.AsList();
+    }
+
+    public async Task<UsuarioDto?> ObterDadosUsuarioPorEmailAsync(string email)
+    {
+        using var connection = new SqlConnection(_connectionString);
+        var query = "SELECT UsuarioID AS UsuarioId, NomeUsuario, Email FROM Usuarios WHERE Email = @Email AND EstaAtivo = 1";
+        return await connection.QueryFirstOrDefaultAsync<UsuarioDto>(query, new { Email = email });
     }
 }

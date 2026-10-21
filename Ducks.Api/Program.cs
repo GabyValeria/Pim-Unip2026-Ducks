@@ -1,8 +1,11 @@
+using System.Text;
 using Ducks.Api.Data;
 using Ducks.Api.Middlewares;
 using Ducks.Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Serilog;
 
@@ -45,6 +48,34 @@ builder.Services.AddDbContext<DucksDbContext>(options =>
 // Registrar o serviço de Stored Procedures via Dapper
 builder.Services.AddScoped<EduDatabaseService>();
 
+// Configuração da Autenticação JWT
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["Secret"] ?? "ChaveSecretaPadraoSuperSeguraDucks2026!";
+var key = Encoding.ASCII.GetBytes(secretKey);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true
+    };
+});
+
+builder.Services.AddAuthorization();
+
 // Adicionar Health Checks
 builder.Services.AddHealthChecks();
 
@@ -70,7 +101,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ducks API Principal v1");
-        c.RoutePrefix = string.Empty; // Abre o Swagger diretamente na raiz 
+        c.RoutePrefix = string.Empty; // Abre o Swagger diretamente na raiz
     });
 }
 
@@ -78,6 +109,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("CorsPolicy");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
