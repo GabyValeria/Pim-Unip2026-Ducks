@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Ducks.AI.Api/Ducks.AI.Api.csproj" />
+  <Project Path="Ducks.Api/Ducks.Api.csproj" />
+</Solution>

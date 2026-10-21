@@ -1,0 +1,21 @@
+# .NET Core / Visual Studio
+bin/
+obj/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+
+# Configurações de ambiente locais e segredos
+appsettings.Development.json
+appsettings.Local.json
+.env
+
+# Logs e arquivos temporários
+*.log
+logs/
+
+# Publicação
+publish/

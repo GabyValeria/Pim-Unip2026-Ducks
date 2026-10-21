@@ -1,0 +1,6 @@
+@Ducks.AI.Api_HostAddress = http://localhost:5270
+
+GET {{Ducks.AI.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
