@@ -1,6 +1,9 @@
+using Ducks.Api.Data;
 using Ducks.Api.Middlewares;
+using Ducks.Api.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.OpenApi; // Namespace ajustado para o Microsoft.OpenApi 2.0+ (.NET 10)
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +30,21 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configuração do Entity Framework Core com Azure SQL Database e resiliência a falhas temporárias
+builder.Services.AddDbContext<DucksDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptionsAction: sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        }));
+
+// Registrar o serviço de Stored Procedures via Dapper
+builder.Services.AddScoped<EduDatabaseService>();
+
 // Adicionar Health Checks
 builder.Services.AddHealthChecks();
 
@@ -52,7 +70,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ducks API Principal v1");
-        c.RoutePrefix = string.Empty; // Abre o Swagger diretamente na raiz (ex: http://localhost:5000/)
+        c.RoutePrefix = string.Empty; // Abre o Swagger diretamente na raiz 
     });
 }
 
