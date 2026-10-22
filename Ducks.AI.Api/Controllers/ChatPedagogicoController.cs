@@ -5,18 +5,23 @@ using System.Security.Claims;
 
 namespace Ducks.AI.Api.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Aluno")] // Restringe estritamente ao papel de Aluno autenticado via Web
 [ApiController]
 [Route("api/[controller]")]
 public class ChatPedagogicoController : ControllerBase
 {
     private readonly PedagogicalChatService _chatService;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<ChatPedagogicoController> _logger;
 
-    public ChatPedagogicoController(PedagogicalChatService chatService, IConfiguration configuration)
+    public ChatPedagogicoController(
+        PedagogicalChatService chatService, 
+        IConfiguration configuration,
+        ILogger<ChatPedagogicoController> logger)
     {
         _chatService = chatService;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public record MensagemDto(string Mensagem, List<string>? Historico = null);
@@ -29,31 +34,40 @@ public class ChatPedagogicoController : ControllerBase
             return BadRequest(new { erro = "A mensagem não pode estar vazia." });
         }
 
-        // Validação estrita do tamanho máximo da mensagem de entrada
+        // Validação de limite de caracteres configurado no backend
         int maxLen = _configuration.GetValue<int>("OpenAISettings:MaxMessageLength", 2000);
         if (dto.Mensagem.Length > maxLen)
         {
             return BadRequest(new { erro = $"A mensagem excede o limite máximo permitido de {maxLen} caracteres." });
         }
 
-        // Extração segura do ID do usuário a partir das claims do JWT (nunca confiar em IDs enviados no corpo da requisição)
-        var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Anônimo";
+        // Extração segura da identidade a partir do token JWT emitido pela API Principal
+        var usuarioId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Desconhecido";
+        var emailUsuario = User.FindFirst(ClaimTypes.Email)?.Value ?? "N/A";
+
+        _logger.LogInformation("Requisição de chat pedagógico recebida do aluno {Email} (ID: {Id})", emailUsuario, usuarioId);
 
         try
         {
+            // Processamento isolado na OpenAI (sem permissão de escrita no banco de dados)
             var resposta = await _chatService.ObterRespostaPedagogicaAsync(dto.Mensagem, dto.Historico);
-            
-            // Retorno estruturado com metadados de auditoria interna
-            return Ok(new 
+
+            return Ok(new
             {
-                usuarioId = usuarioIdClaim,
+                usuarioId,
                 resposta,
                 timestamp = DateTime.UtcNow
             });
         }
+        catch (TaskCanceledException)
+        {
+            _logger.LogWarning("Tempo limite esgotado ao aguardar resposta da OpenAI para o aluno {Id}.", usuarioId);
+            return StatusCode(504, new { erro = "O assistente pedagógico demorou muito para responder. Tente novamente mais tarde." });
+        }
         catch (Exception ex)
         {
-            return StatusCode(500, new { erro = "Erro ao processar a solicitação pedagógica.", detalhe = ex.Message });
+            _logger.LogError(ex, "Erro crítico ao processar o chat pedagógico para o aluno {Id}.", usuarioId);
+            return StatusCode(500, new { erro = "Erro interno ao processar a solicitação de IA." });
         }
     }
 }
