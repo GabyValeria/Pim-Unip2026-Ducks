@@ -5,14 +5,12 @@ namespace Ducks.Admin.Desktop.Services;
 
 public interface IAdminApiService
 {
-    // Usuários (Passo 3)
     [Get("/api/admin/usuarios")]
     Task<PagedResultDto<UsuarioAdminDto>> ObterUsuariosAsync([Query] string? termo, [Query] int pagina = 1, [Query] int tamanhoPagina = 10);
 
     [Put("/api/admin/usuarios/{id}/status")]
     Task AlterarStatusUsuarioAsync(int id, [Body] AlterarStatusRequestDto request);
 
-    // Conteúdo Educacional (Passo 4)
     [Get("/api/admin/trilhas")]
     Task<List<TrilhaAdminDto>> ObterTrilhasAsync();
 
@@ -22,10 +20,15 @@ public interface IAdminApiService
     [Put("/api/admin/trilhas/{id}/aprovar")]
     Task AprovarTrilhaAsync(int id);
 
-    // Gamificação e Conquistas (Passo 4)
     [Get("/api/admin/conquistas")]
     Task<List<ConquistaAdminDto>> ObterConquistasAsync();
 
     [Post("/api/admin/conquistas")]
     Task CriarConquistaAsync([Body] CriarConquistaRequestDto request);
+
+    [Post("/api/admin/ai/assistente")]
+    Task<AiResponseDto> ConsultarAssistenteIaAsync([Body] AiRequestDto request);
+
+    [Get("/api/admin/auditoria")]
+    Task<List<AuditLogDto>> ObterLogsAuditoriaAsync();
 }
