@@ -1,45 +1,59 @@
 using Ducks.AI.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Ducks.AI.Api.Controllers;
 
-[Authorize] // Exige autenticação estrita do aluno via Web
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ChatPedagogicoController : ControllerBase
 {
     private readonly PedagogicalChatService _chatService;
+    private readonly IConfiguration _configuration;
 
-    public ChatPedagogicoController(PedagogicalChatService chatService)
+    public ChatPedagogicoController(PedagogicalChatService chatService, IConfiguration configuration)
     {
         _chatService = chatService;
+        _configuration = configuration;
     }
 
-    public record MensagemDto(string Mensagem);
+    public record MensagemDto(string Mensagem, List<string>? Historico = null);
 
     [HttpPost("perguntar")]
     public async Task<IActionResult> Perguntar([FromBody] MensagemDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Mensagem))
+        if (dto == null || string.IsNullOrWhiteSpace(dto.Mensagem))
         {
             return BadRequest(new { erro = "A mensagem não pode estar vazia." });
         }
 
+        // Validação estrita do tamanho máximo da mensagem de entrada
+        int maxLen = _configuration.GetValue<int>("OpenAISettings:MaxMessageLength", 2000);
+        if (dto.Mensagem.Length > maxLen)
+        {
+            return BadRequest(new { erro = $"A mensagem excede o limite máximo permitido de {maxLen} caracteres." });
+        }
+
+        // Extração segura do ID do usuário a partir das claims do JWT (nunca confiar em IDs enviados no corpo da requisição)
+        var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Anônimo";
+
         try
         {
-            // Validação de limite de tamanho de mensagem (segurança e controle de custos)
-            if (dto.Mensagem.Length > 2000)
+            var resposta = await _chatService.ObterRespostaPedagogicaAsync(dto.Mensagem, dto.Historico);
+            
+            // Retorno estruturado com metadados de auditoria interna
+            return Ok(new 
             {
-                return BadRequest(new { erro = "A mensagem excede o tamanho máximo permitido de 2000 caracteres." });
-            }
-
-            var resposta = await _chatService.ObterRespostaPedagogicaAsync(dto.Mensagem);
-            return Ok(new { resposta });
+                usuarioId = usuarioIdClaim,
+                resposta,
+                timestamp = DateTime.UtcNow
+            });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { erro = "Erro ao processar a resposta pedagógica.", detalhe = ex.Message });
+            return StatusCode(500, new { erro = "Erro ao processar a solicitação pedagógica.", detalhe = ex.Message });
         }
     }
 }

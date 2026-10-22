@@ -1,3 +1,4 @@
+using Ducks.AI.Api.Models;
 using Ducks.AI.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -5,7 +6,10 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração da Autenticação JWT para validar alunos autenticados na Web
+// Configuração Bind de Opções OpenAI
+builder.Services.Configure<OpenAIOptions>(builder.Configuration.GetSection("OpenAISettings"));
+
+// Configuração da Autenticação JWT
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] ?? "ChaveSuperSeguraPadraoDucks2026";
 var key = Encoding.UTF8.GetBytes(jwtSecret);
 
@@ -27,9 +31,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); // Requer o pacote Swashbuckle.AspNetCore
+builder.Services.AddSwaggerGen();
 
-// Registrar o serviço de IA isolado
 builder.Services.AddScoped<PedagogicalChatService>();
 
 var app = builder.Build();
