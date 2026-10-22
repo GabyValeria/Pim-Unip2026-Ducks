@@ -4,21 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
-             Background="#1E1E2E">
-    <Grid Margin="30">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="350">
-            <TextBlock Text="DUCKS.ADMIN" FontSize="26" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,25"/>
-            
-            <TextBlock Text="E-mail do Administrador" Foreground="#A6ADC8" Margin="0,0,0,5"/>
-            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15" Padding="5"/>
-            
-            <TextBlock Text="Senha" Foreground="#A6ADC8" Margin="0,0,0,5"/>
-            <PasswordBox Height="35" Margin="0,0,0,20"/>
-            
-            <Button Content="Acessar Painel" Command="{Binding LoginCommand}" Height="40" Background="#89B4FA" Foreground="#11111B" FontWeight="Bold"/>
-            
-            <TextBlock Text="{Binding MensagemErro}" Foreground="#F38BA8" Margin="0,15,0,0" TextWrapping="Wrap" HorizontalAlignment="Center"/>
-        </StackPanel>
+             d:DesignHeight="550" d:DesignWidth="850"
+             Background="{StaticResource DucksBackgroundBrush}">
+    <Grid Margin="40">
+        <Border Background="{StaticResource DucksSurfaceBrush}" CornerRadius="16" Padding="40" MaxWidth="420" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel>
+                <!-- Título com identidade Ducks -->
+                <TextBlock Text="🦆 DUCKS.ADMIN" FontSize="28" FontWeight="Bold" Foreground="{StaticResource DucksYellowBrush}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                <TextBlock Text="Gestão Administrativa do Ecossistema" FontSize="13" Foreground="{StaticResource DucksSubTextBrush}" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                
+                <TextBlock Text="E-mail" Foreground="{StaticResource DucksWhiteBrush}" Margin="0,0,0,6" FontWeight="Medium"/>
+                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="0,0,0,20"/>
+                
+                <TextBlock Text="Senha" Foreground="{StaticResource DucksWhiteBrush}" Margin="0,0,0,6" FontWeight="Medium"/>
+                <PasswordBox Height="40" Margin="0,0,0,30"/>
+                
+                <Button Content="Acessar Painel" Command="{Binding LoginCommand}" Height="45" FontSize="15"/>
+                
+                <TextBlock Text="{Binding MensagemErro}" Foreground="{StaticResource DucksRedBrush}" Margin="0,20,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

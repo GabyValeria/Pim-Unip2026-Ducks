@@ -1,0 +1,30 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Cores Oficiais do Ecossistema Ducks (Baseadas no Design System) -->
+    <Color x:Key="DucksYellowColor">#FFD60A</Color>
+    <Color x:Key="DucksDarkColor">#1C1C1C</Color>
+    <Color x:Key="DucksPurpleColor">#7C3AED</Color>
+    <Color x:Key="DucksBlueColor">#2563EB</Color>
+    <Color x:Key="DucksWhiteColor">#FFFFFF</Color>
+    <Color x:Key="DucksGreenColor">#92A519</Color>
+    <Color x:Key="DucksRedColor">#FF5757</Color>
+    <Color x:Key="DucksSurfaceColor">#1E1E2E</Color>
+    <Color x:Key="DucksCardColor">#2A2A3C</Color>
+    <Color x:Key="DucksBackgroundColor">#11111B</Color>
+    <Color x:Key="DucksSubTextKey">#A6ADC8</Color>
+
+    <!-- Brushes Prontos para Uso -->
+    <SolidColorBrush x:Key="DucksYellowBrush" Color="{StaticResource DucksYellowColor}"/>
+    <SolidColorBrush x:Key="DucksDarkBrush" Color="{StaticResource DucksDarkColor}"/>
+    <SolidColorBrush x:Key="DucksPurpleBrush" Color="{StaticResource DucksPurpleColor}"/>
+    <SolidColorBrush x:Key="DucksBlueBrush" Color="{StaticResource DucksBlueColor}"/>
+    <SolidColorBrush x:Key="DucksWhiteBrush" Color="{StaticResource DucksWhiteColor}"/>
+    <SolidColorBrush x:Key="DucksGreenBrush" Color="{StaticResource DucksGreenColor}"/>
+    <SolidColorBrush x:Key="DucksRedBrush" Color="{StaticResource DucksRedColor}"/>
+    <SolidColorBrush x:Key="DucksSurfaceBrush" Color="{StaticResource DucksSurfaceColor}"/>
+    <SolidColorBrush x:Key="DucksCardBrush" Color="{StaticResource DucksCardColor}"/>
+    <SolidColorBrush x:Key="DucksBackgroundBrush" Color="{StaticResource DucksBackgroundColor}"/>
+    <SolidColorBrush x:Key="DucksSubTextBrush" Color="{StaticResource DucksSubTextKey}"/>
+
+</ResourceDictionary>
