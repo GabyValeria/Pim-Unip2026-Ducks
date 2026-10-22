@@ -1,0 +1,22 @@
+graph TD
+    Admin((Administrador))
+
+    subgraph Ducks.Admin.Desktop
+        UC1[Autenticar no Sistema via JWT]
+        UC2[Listar e Filtrar Usuários e Autores]
+        UC3[Moderar / Bloquear ou Desbloquear Usuário]
+        UC4[Gerenciar Trilhas de Aprendizagem]
+        UC5[Configurar Conquistas e Regras de XP]
+        UC6[Consultar Assistente de IA para Automação]
+        UC7[Visualizar Métricas em Tempo Real - SignalR]
+        UC8[Auditar Logs de Ações Administrativas]
+    end
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Admin --> UC5
+    Admin --> UC6
+    Admin --> UC7
+    Admin --> UC8

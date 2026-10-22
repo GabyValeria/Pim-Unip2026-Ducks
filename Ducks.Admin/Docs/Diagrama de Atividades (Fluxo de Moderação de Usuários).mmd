@@ -1,0 +1,15 @@
+flowchart TD
+    A[Início: Acessar Módulo de Usuários] --> B[Carregar Lista Paginada via API]
+    B --> C{Inseriu Termo de Busca?}
+    C -- Sim --> D[Filtrar por Termo e Recarregar]
+    C -- Não --> E[Exibir Grade de Usuários]
+    D --> E
+    E --> F[Administrador seleciona um Usuário]
+    F --> G[Clica no botão 'Alternar Status']
+    G --> H[Chamar PUT /api/admin/usuarios/id/status]
+    H --> I{API respondeu com Sucesso?}
+    I -- Sim --> J[Inverter Propriedade 'EstaAtivo' do DTO]
+    I -- Não --> K[Exibir Mensagem de Erro de Comunicação]
+    J --> L[Atualizar UI dinamicamente]
+    K --> L
+    L --> M[Fim da Tarefa de Moderação]
