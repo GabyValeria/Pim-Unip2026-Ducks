@@ -1,0 +1,98 @@
+<UserControl x:Class="Ducks.Admin.Desktop.Views.UserManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="900"
+             Background="{StaticResource DucksBackgroundBrush}">
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cabeçalho e Filtros -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Gerenciamento de Usuários e Autores" FontSize="24" FontWeight="Bold" Foreground="{StaticResource DucksYellowBrush}" Margin="0,0,0,15"/>
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBox Text="{Binding TermoBusca, UpdateSourceTrigger=PropertyChanged}" 
+                         Height="40" Margin="0,0,15,0" 
+                         VerticalContentAlignment="Center"/>
+                
+                <Button Grid.Column="1" Content="Pesquisar" Command="{Binding CarregarUsuariosCommand}" Width="120" Height="40"/>
+            </Grid>
+        </StackPanel>
+
+        <!-- Listagem de Alta Performance (DataGrid) -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Usuarios}" SelectedItem="{Binding UsuarioSelecionado}"
+                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                  Background="{StaticResource DucksSurfaceBrush}" Foreground="{StaticResource DucksWhiteBrush}"
+                  BorderBrush="{StaticResource DucksCardBrush}" RowHeight="45">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding UsuarioId}" Width="60"/>
+                <DataGridTextColumn Header="Nome de Usuário" Binding="{Binding NomeUsuario}" Width="200"/>
+                <DataGridTextColumn Header="E-mail" Binding="{Binding Email}" Width="250"/>
+                <DataGridTemplateColumn Header="Status" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="4" Padding="6,3" HorizontalAlignment="Left">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{StaticResource DucksGreenBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding EstaAtivo}" Value="False">
+                                                <Setter Property="Background" Value="{StaticResource DucksRedBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock FontSize="11" FontWeight="Bold" Foreground="White">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="ATIVO"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding EstaAtivo}" Value="False">
+                                                    <Setter Property="Text" Value="BLOQUEADO"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Ações de Moderação" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Alternar Status" 
+                                    Command="{Binding DataContext.AlternarStatusCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                    CommandParameter="{Binding}" 
+                                    Height="30" Width="120" FontSize="12"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Paginação -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Content="Anterior" Command="{Binding PaginaAnteriorCommand}" Width="90" Height="35" Margin="0,0,10,0"/>
+            <TextBlock VerticalAlignment="Center" Foreground="{StaticResource DucksWhiteBrush}" Margin="10,0" FontWeight="SemiBold">
+                <Run Text="Página "/>
+                <Run Text="{Binding PaginaAtual}"/>
+                <Run Text=" de "/>
+                <Run Text="{Binding TotalPaginas}"/>
+            </TextBlock>
+            <Button Content="Próxima" Command="{Binding ProximaPaginaCommand}" Width="90" Height="35" Margin="10,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
