@@ -19,3 +19,6 @@ logs/
 
 # Publicação
 publish/
+
+# .gitignore
+.DS_Store
