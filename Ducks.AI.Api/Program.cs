@@ -33,6 +33,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Registrar o serviço de FAQ local e o serviço de IA
+builder.Services.AddSingleton<FaqService>();
+builder.Services.AddScoped<PedagogicalChatService>();
+
 builder.Services.AddScoped<PedagogicalChatService>();
 
 var app = builder.Build();

@@ -17,11 +17,13 @@ public class SecurityTests
             ApiKey = string.Empty,
             Model = "gpt-4o-mini"
         });
+        
+        var faqServiceMock = new Mock<FaqService>();
         var loggerMock = new Mock<ILogger<PedagogicalChatService>>();
 
-        // Act & Assert
+        // Act & Assert (Fornecendo todos os parâmetros exigidos pelo construtor atualizado)
         var exception = Assert.Throws<InvalidOperationException>(() => 
-            new PedagogicalChatService(options, loggerMock.Object));
+            new PedagogicalChatService(options, faqServiceMock.Object, loggerMock.Object));
         
         Assert.Contains("OpenAI API Key não configurada", exception.Message);
     }
