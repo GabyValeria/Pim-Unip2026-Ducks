@@ -1,9 +1,15 @@
 ﻿<Application x:Class="Ducks.Admin.Desktop.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Ducks.Admin.Desktop"
+             xmlns:vm="clr-namespace:Ducks.Admin.Desktop.ViewModels"
+             xmlns:v="clr-namespace:Ducks.Admin.Desktop.Views"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <DataTemplate DataType="{x:Type vm:LoginViewModel}">
+            <v:LoginView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <v:MainDashboardView />
+        </DataTemplate>
     </Application.Resources>
 </Application>
