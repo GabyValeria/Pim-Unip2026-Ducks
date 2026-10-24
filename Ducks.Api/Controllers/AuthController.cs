@@ -26,20 +26,22 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
-        var usuario = await _dbService.ObterDadosUsuarioPorEmailAsync(request.Email);
-        if (usuario == null)
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Senha))
         {
-            return Unauthorized(new { message = "Credenciais inválidas." });
+            return BadRequest(new { message = "E-mail e senha são obrigatórios." });
         }
 
-        var usuarioIdValidado = await _dbService.AutenticarUsuarioAsync(request.Email, request.Senha);
-        if (!usuarioIdValidado.HasValue)
+        // 1. Valida e busca o usuário em uma única tacada de forma segura (sem dependência de SP complexa)
+        var usuario = await _dbService.AutenticarEObterUsuarioAsync(request.Email, request.Senha);
+        if (usuario == null)
         {
             return Unauthorized(new { message = "E-mail ou senha incorretos." });
         }
 
+        // 2. Consulta papéis (RBAC) do usuário (ex: Aluno, Administrador, Curador, Moderador)
         var papeis = await _dbService.ObterPapeisUsuarioAsync(usuario.UsuarioId);
 
+        // 3. Emissão do Token JWT
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["Secret"] ?? "ChaveSecretaPadraoSuperSeguraDucks2026!";
@@ -76,7 +78,7 @@ public class AuthController : ControllerBase
             Token = tokenString,
             ExpiraEmMinutos = expirationMinutes,
             NomeUsuario = usuario.NomeUsuario,
-            Papeis = papeis
+            Papeis = papeis?.ToList() ?? new List<string>()
         });
     }
 }

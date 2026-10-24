@@ -13,7 +13,7 @@ public class DucksDesktopClientService
     {
         _httpClient = new HttpClient
         {
-            BaseAddress = new Uri("https://localhost:5001/") // URL da API Principal
+            BaseAddress = new Uri("https://localhost:5109/") // URL da API Principal
         };
     }
 

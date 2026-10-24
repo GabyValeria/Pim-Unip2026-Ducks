@@ -1,4 +1,6 @@
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
@@ -21,33 +23,47 @@ public class EduDatabaseService
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' não encontrada.");
     }
 
-    public async Task<int?> AutenticarUsuarioAsync(string email, string senhaHash)
+    // --- FUNÇÃO AUXILIAR DE CRIPTOGRAFIA SHA-256 NA API ---
+    private string ObterHashSha256(string texto)
     {
-        using var connection = new SqlConnection(_connectionString);
-        var parameters = new DynamicParameters();
-        parameters.Add("@Email", email);
-        parameters.Add("@HashSenha", senhaHash);
-        
-        var resultado = await connection.QueryFirstOrDefaultAsync<int?>(
-            "sp_AutenticarUsuario", 
-            parameters, 
-            commandType: CommandType.StoredProcedure);
-
-        return resultado;
+        using var sha256 = SHA256.Create();
+        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(texto));
+        var sb = new StringBuilder();
+        foreach (var b in bytes)
+        {
+            sb.Append(b.ToString("X2")); // Formato hexadecimal em maiúsculo (compatível com o SQL Server)
+        }
+        return sb.ToString();
     }
 
-    public async Task SubmeterRespostaProvaAsync(int provaUsuarioId, int questaoId, int alternativaId)
+    // --- AUTENTICAÇÃO E USUÁRIO (Criptografa a senha na API antes de enviar ao banco) ---
+    public async Task<UsuarioDto?> AutenticarEObterUsuarioAsync(string email, string senhaPlainText)
+    {
+        // 1. Criptografa a senha usando SHA-256 diretamente na API
+        string senhaHash = ObterHashSha256(senhaPlainText);
+
+        using var connection = new SqlConnection(_connectionString);
+        var query = @"
+            SELECT TOP 1 
+                UsuarioID AS UsuarioId, 
+                NomeUsuario, 
+                Email 
+            FROM Usuarios 
+            WHERE (Email = @Email OR NomeUsuario = @Email) 
+              AND SenhaHash = @SenhaHash 
+              AND EstaAtivo = 1";
+
+        return await connection.QueryFirstOrDefaultAsync<UsuarioDto>(
+            query, 
+            new { Email = email.Trim(), SenhaHash = senhaHash }
+        );
+    }
+
+    public async Task<UsuarioDto?> ObterDadosUsuarioPorEmailAsync(string email)
     {
         using var connection = new SqlConnection(_connectionString);
-        var parameters = new DynamicParameters();
-        parameters.Add("@ProvaUsuarioID", provaUsuarioId);
-        parameters.Add("@QuestaoID", questaoId);
-        parameters.Add("@AlternativaID", alternativaId);
-
-        await connection.ExecuteAsync(
-            "sp_SubmeterRespostaProva", 
-            parameters, 
-            commandType: CommandType.StoredProcedure);
+        var query = "SELECT UsuarioID AS UsuarioId, NomeUsuario, Email FROM Usuarios WHERE Email = @Email AND EstaAtivo = 1";
+        return await connection.QueryFirstOrDefaultAsync<UsuarioDto>(query, new { Email = email.Trim() });
     }
 
     public async Task<List<string>> ObterPapeisUsuarioAsync(int usuarioId)
@@ -63,16 +79,22 @@ public class EduDatabaseService
         return papeis.AsList();
     }
 
-    public async Task<UsuarioDto?> ObterDadosUsuarioPorEmailAsync(string email)
+    // --- SUBMISSÃO E PROVAS (Stored Procedures Transacionais) ---
+    public async Task SubmeterRespostaProvaAsync(int provaUsuarioId, int questaoId, int alternativaId)
     {
         using var connection = new SqlConnection(_connectionString);
-        var query = "SELECT UsuarioID AS UsuarioId, NomeUsuario, Email FROM Usuarios WHERE Email = @Email AND EstaAtivo = 1";
-        return await connection.QueryFirstOrDefaultAsync<UsuarioDto>(query, new { Email = email });
+        var parameters = new DynamicParameters();
+        parameters.Add("@ProvaUsuarioID", provaUsuarioId);
+        parameters.Add("@QuestaoID", questaoId);
+        parameters.Add("@AlternativaID", alternativaId);
+
+        await connection.ExecuteAsync(
+            "sp_SubmeterRespostaProva", 
+            parameters, 
+            commandType: CommandType.StoredProcedure);
     }
 
     // --- RECURSOS DE GAMIFICAÇÃO E RECOMPENSAS ---
-
-    // Executa a Stored Procedure oficial para verificar e conceder novas conquistas/medalhas
     public async Task VerificarEConcederConquistasAsync(int usuarioId)
     {
         using var connection = new SqlConnection(_connectionString);
@@ -85,20 +107,18 @@ public class EduDatabaseService
             commandType: CommandType.StoredProcedure);
     }
 
-    // Consulta o saldo total de XP e o nível atual do usuário na tabela XPUsuario e NiveisGamificacao
     public async Task<object?> ObterXPUsuarioAsync(int usuarioId)
     {
         using var connection = new SqlConnection(_connectionString);
         var query = @"
             SELECT x.UsuarioID, x.TotalXP, n.NomeNivel AS NivelAtual, x.AtualizadoEm
             FROM XPUsuario x
-            INNER JOIN NiveisGamificacao n ON x.NivelAtualID = n.NivelID
+            INNER JOIN NiveisGamificacao n x.NivelAtualID = n.NivelID
             WHERE x.UsuarioID = @UsuarioId";
 
         return await connection.QueryFirstOrDefaultAsync<object>(query, new { UsuarioId = usuarioId });
     }
 
-    // Lista todas as conquistas e medalhas desbloqueadas pelo usuário (sem ranking)
     public async Task<IEnumerable<object>> ObterConquistasUsuarioAsync(int usuarioId)
     {
         using var connection = new SqlConnection(_connectionString);
