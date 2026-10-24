@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+
 namespace Ducks.AI.Api.Services;
 
 public class FaqService
@@ -17,7 +20,7 @@ public class FaqService
             "As conquistas e medalhas são concedidas automaticamente quando você atinge certos marcos, como concluir módulos, acertar sequências de questões ou alcançar novos níveis de XP!"
         },
         {
-            new List<string> { "o que e o ducks", "plataforma", "sobre o projeto", "sobre o ducks" },
+            new List<string> { "o que e o ducks", "plataforma", "sobre o projeto", "sobre o ducks", "o que e ducks" },
             "O Ducks é um ecossistema educacional de alta performance e gamificado, focado em auxiliar estudantes de tecnologia com trilhas de aprendizagem, provas interativas e um assistente pedagógico virtual."
         },
         {
@@ -46,7 +49,7 @@ public class FaqService
         },
         {
             new List<string> { "suporte", "falar com moderador", "problema técnico", "bug", "ajuda" },
-            "Caso encontre algum problema técnico ou tenha dúvidas sobre o conteúdo das aulas, procure pelos canais oficiais de suporte da plataforma ou entre em contato direto com ducks_suporte@gmail.com."
+            "Caso encontre algum problema técnico ou tenha dúvidas sobre o conteúdo das aulas, procure um Moderador ou Curador da sua instituição de ensino pelos canais oficiais de suporte da plataforma."
         }
     };
 
@@ -54,16 +57,36 @@ public class FaqService
     {
         if (string.IsNullOrWhiteSpace(mensagemAluno)) return null;
 
-        var mensagemNormalizada = mensagemAluno.ToLowerInvariant();
+        var mensagemNormalizada = RemoverAcentos(mensagemAluno.ToLowerInvariant());
 
         foreach (var item in _faqDatabase)
         {
-            if (item.Key.Any(palavraChave => mensagemNormalizada.Contains(palavraChave)))
+            foreach (var palavraChave in item.Key)
             {
-                return item.Value;
+                if (mensagemNormalizada.Contains(RemoverAcentos(palavraChave)))
+                {
+                    return item.Value;
+                }
             }
         }
 
         return null; // Nenhuma resposta pronta encontrada -> encaminhar para a OpenAI
+    }
+
+    private string RemoverAcentos(string texto)
+    {
+        var normalizedString = texto.Normalize(NormalizationForm.FormD);
+        var stringBuilder = new StringBuilder();
+
+        foreach (var c in normalizedString)
+        {
+            var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+
+        return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
 }
