@@ -1,9 +1,0 @@
-<Solution>
-  <Folder Name="/Ducks.Admin/">
-    <Project Path="Ducks.Admin/Ducks.Admin.Desktop.Tests/Ducks.Admin.Desktop.Tests.csproj" />
-    <Project Path="Ducks.Admin/Ducks.Admin.Desktop/Ducks.Admin.Desktop.csproj" />
-  </Folder>
-  <Project Path="Ducks.AI.Api.Tests/Ducks.AI.Api.Tests.csproj" />
-  <Project Path="Ducks.AI.Api/Ducks.AI.Api.csproj" />
-  <Project Path="Ducks.Api/Ducks.Api.csproj" />
-</Solution>
