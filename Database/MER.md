@@ -10,8 +10,7 @@ Este domínio é responsável pela gestão de utilizadores, credenciais e contro
 
 * **`Usuarios`**
   * **Propósito:** Armazena o cadastro central de todos os utilizadores da plataforma (estudantes, curadores, moderadores e administradores).
-  * **Atributos Principais:** `UsuarioID` (PK), `NomeUsuario`, `Email`, `HashSenha`, `SaltSenha`, `EstaAtivo`, `CriadoEm`, `AtualizadoEm`.
-  * **Segurança:** As senhas são armazenadas exclusivamente através de hash seguro combinado com *salt* (`HashSenha` e `SaltSenha`) gerenciados por procedimentos de autenticação nativos.
+  * **Atributos Principais:** `UsuarioID` (PK), `NomeUsuario`, `Email`, `SenhaHash`, `EstaAtivo`, `CriadoEm`, `AtualizadoEm`.
 
 * **`Papeis`**
   * **Propósito:** Define as funções lógicas disponíveis no sistema (ex: Administrador, Curador, Moderador).

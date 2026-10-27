@@ -9,7 +9,7 @@ O banco de dados **`ducks-db`** foi projetado para sustentar uma plataforma educ
 O esquema utiliza **SQL Server** e baseia-se nos seguintes pilares principais:
 
 1. **Gestão de Usuários e Autenticação:**
-   * **`Usuarios`**: Armazena as informações cadastrais dos usuários (com hash/salt para senhas).
+   * **`Usuarios`**: Armazena as informações cadastrais dos usuários.
    * **`Papeis`** e **`UsuarioPapeis`**: Implementam o controle de acesso baseado em papéis (RBAC), definindo permissões como Administrador, Curador e Moderador.
 
 2. **Trilhas de Aprendizagem e Conteúdo:**

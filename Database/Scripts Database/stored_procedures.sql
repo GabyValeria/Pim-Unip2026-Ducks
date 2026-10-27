@@ -31,8 +31,7 @@ BEGIN
 
     SELECT 
         @UsuarioID = u.UsuarioID,
-        @StoredHash = u.HashSenha,
-        @StoredSalt = u.SaltSenha,
+        @StoredHash = u.SenhaHash,
         @EstaAtivo = u.EstaAtivo
     FROM dbo.Usuarios u
     WHERE u.NomeUsuario = @Identificador OR u.Email = @Identificador;
