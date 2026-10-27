@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Ducks.Admin.Desktop/Ducks.Admin.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Ducks.Admin.UnitTests/Ducks.Admin.UnitTests.csproj" />
+  </Folder>
+</Solution>
