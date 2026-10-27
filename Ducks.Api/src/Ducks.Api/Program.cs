@@ -70,14 +70,15 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-if (app.Environment.IsDevelopment())
+// Ativa o Swagger em qualquer ambiente (Desenvolvimento e Produção)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ducks API v1"));
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ducks API v1");
+    c.RoutePrefix = string.Empty; // <-- ISSO FAZ O SWAGGER ABRIR NA RAIZ DA URL!
+});
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
