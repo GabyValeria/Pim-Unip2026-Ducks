@@ -10,6 +10,10 @@ public class DucksDbContext : DbContext
     }
 
     public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<TrilhaAprendizagem> TrilhasAprendizagem => Set<TrilhaAprendizagem>();
+    public DbSet<Aula> Aulas => Set<Aula>();
+    public DbSet<XPUsuario> XPUsuarios => Set<XPUsuario>();
+    public DbSet<HistoricoXP> HistoricoXPs => Set<HistoricoXP>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,23 +23,37 @@ public class DucksDbContext : DbContext
         {
             entity.ToTable("Usuarios");
             entity.HasKey(e => e.UsuarioID);
-            
-            entity.Property(e => e.NomeUsuario)
-                .IsRequired()
-                .HasMaxLength(100);
+            entity.Property(e => e.NomeUsuario).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.HashSenha).IsRequired();
+            entity.Property(e => e.SaltSenha).IsRequired();
+            entity.HasIndex(e => e.Email).IsUnique();
+        });
 
-            entity.Property(e => e.Email)
-                .IsRequired()
-                .HasMaxLength(150);
+        modelBuilder.Entity<TrilhaAprendizagem>(entity =>
+        {
+            entity.ToTable("TrilhasAprendizagem");
+            entity.HasKey(e => e.TrilhaID);
+            entity.Property(e => e.NomeTrilha).IsRequired().HasMaxLength(150);
+        });
 
-            entity.Property(e => e.HashSenha)
-                .IsRequired();
+        modelBuilder.Entity<Aula>(entity =>
+        {
+            entity.ToTable("Aulas");
+            entity.HasKey(e => e.AulaID);
+            entity.Property(e => e.Titulo).IsRequired().HasMaxLength(150);
+        });
 
-            entity.Property(e => e.SaltSenha)
-                .IsRequired();
+        modelBuilder.Entity<XPUsuario>(entity =>
+        {
+            entity.ToTable("XPUsuario");
+            entity.HasKey(e => e.UsuarioID);
+        });
 
-            entity.HasIndex(e => e.Email)
-                .IsUnique();
+        modelBuilder.Entity<HistoricoXP>(entity =>
+        {
+            entity.ToTable("HistoricoXP");
+            entity.HasKey(e => e.HistoricoXPID);
         });
     }
 }
