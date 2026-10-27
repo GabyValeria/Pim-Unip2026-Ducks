@@ -38,6 +38,7 @@ public class AuthService : IAuthService
             NomeUsuario = dto.NomeUsuario,
             Email = dto.Email,
             CriadoEm = DateTime.UtcNow,
+            AtualizadoEm = DateTime.UtcNow, // Correção: preenche a coluna que é NOT NULL no banco
             EstaAtivo = true
         };
 
