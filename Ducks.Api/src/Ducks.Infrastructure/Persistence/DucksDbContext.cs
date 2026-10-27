@@ -25,8 +25,7 @@ public class DucksDbContext : DbContext
             entity.HasKey(e => e.UsuarioID);
             entity.Property(e => e.NomeUsuario).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Email).IsRequired().HasMaxLength(150);
-            entity.Property(e => e.HashSenha).IsRequired();
-            entity.Property(e => e.SaltSenha).IsRequired();
+            entity.Property(e => e.SenhaHash).IsRequired();
             entity.HasIndex(e => e.Email).IsUnique();
         });
 

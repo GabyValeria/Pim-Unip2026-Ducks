@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using Ducks.Application.DTOs;
 using Ducks.Application.Services;
@@ -38,12 +37,12 @@ public class AuthService : IAuthService
         {
             NomeUsuario = dto.NomeUsuario,
             Email = dto.Email,
-            SaltSenha = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16)),
             CriadoEm = DateTime.UtcNow,
             EstaAtivo = true
         };
 
-        usuario.HashSenha = _passwordHasher.HashPassword(usuario, dto.Senha);
+        // Hashing seguro da senha utilizando o PasswordHasher nativo do ASP.NET Core
+        usuario.SenhaHash = _passwordHasher.HashPassword(usuario, dto.Senha);
 
         _context.Usuarios.Add(usuario);
         await _context.SaveChangesAsync();
@@ -68,7 +67,7 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Credenciais inválidas ou conta inativa.");
         }
 
-        var resultado = _passwordHasher.VerifyHashedPassword(usuario, usuario.HashSenha, dto.Senha);
+        var resultado = _passwordHasher.VerifyHashedPassword(usuario, usuario.SenhaHash, dto.Senha);
         if (resultado == PasswordVerificationResult.Failed)
         {
             throw new UnauthorizedAccessException("Credenciais inválidas.");
