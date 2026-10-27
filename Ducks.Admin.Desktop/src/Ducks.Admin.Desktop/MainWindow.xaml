@@ -3,10 +3,41 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Ducks.Admin.Desktop"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Ducks Admin Desktop" Height="650" Width="1000"
+        Background="{StaticResource DucksGrayBgBrush}"
+        WindowStartupLocation="CenterScreen">
+    
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <!-- Cabeçalho / Branding Ducks -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Text="🦆 Ducks." FontSize="28" FontWeight="Bold" Foreground="{StaticResource DucksDarkBrush}" FontFamily="Poppins"/>
+            <TextBlock Text=" Admin Dashboard" FontSize="28" FontWeight="Light" Foreground="{StaticResource DucksPurpleBrush}" FontFamily="Poppins" Margin="5,0,0,0"/>
+        </StackPanel>
+
+        <!-- Conteúdo do Painel -->
+        <Border Grid.Row="1" Style="{StaticResource DucksCardStyle}" Margin="0,20,0,0">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Bem-vindo ao Painel Administrativo da Plataforma Ducks" 
+                           FontSize="18" FontWeight="SemiBold" 
+                           Foreground="{StaticResource DucksDarkBrush}" 
+                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                
+                <TextBlock Text="Design System aplicado com sucesso (Cores oficiais, tipografia e estilos SaaS)." 
+                           FontSize="14" 
+                           Foreground="#64748B" 
+                           HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                <Button Content="Testar Conexão com API" 
+                        Style="{StaticResource DucksPrimaryButton}"
+                        Command="{Binding RefreshConnectionCommand}"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
