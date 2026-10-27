@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ducks.Admin.Desktop.Services;
+using Ducks.Admin.Desktop.Views;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Ducks.Admin.Desktop.ViewModels
 {
@@ -42,10 +45,27 @@ namespace Ducks.Admin.Desktop.ViewModels
             try
             {
                 var result = await _apiClient.LoginAsync(Email, Senha);
-                if (result != null && !string.IsNullOrEmpty(result.Token))
+                
+                if (result != null && (result.Sucesso || !string.IsNullOrEmpty(result.Token)))
                 {
                     _apiClient.Token = result.Token;
                     ErrorMessage = "Login realizado com sucesso!";
+
+                    // Abre o Dashboard Principal (MainWindow) e fecha a tela de login atual
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        var mainWindow = App.ServiceProvider?.GetRequiredService<MainWindow>();
+                        mainWindow?.Show();
+
+                        foreach (Window window in Application.Current.Windows)
+                        {
+                            if (window is LoginWindow)
+                            {
+                                window.Close();
+                                break;
+                            }
+                        }
+                    });
                 }
                 else
                 {
