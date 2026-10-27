@@ -17,6 +17,8 @@ builder.Services.AddDbContext<DucksDbContext>(options =>
 // Injeção de Serviços de Aplicação/Infra
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddScoped<IEducacionalService, EducacionalService>();
+
 // Autenticação JWT
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "DucksPlatformSecretKey_Minimo32Caracteres!";
 var key = Encoding.ASCII.GetBytes(jwtSecret);
