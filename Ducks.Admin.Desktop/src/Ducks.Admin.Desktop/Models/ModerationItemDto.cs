@@ -6,8 +6,9 @@ namespace Ducks.Admin.Desktop.Models
     {
         public int ItemID { get; set; }
         public string TipoConteudo { get; set; } = string.Empty; // Trilha, Aula, Comentario
+        public string Conteudo { get; set; } = string.Empty;
+        public string Autor { get; set; } = string.Empty;
         public string Titulo { get; set; } = string.Empty;
-        AutorDto Autor { get; set; } = new();
         public string Status { get; set; } = "PENDENTE"; // PENDENTE, APROVADO, REJEITADO
         public DateTime CriadoEm { get; set; }
     }

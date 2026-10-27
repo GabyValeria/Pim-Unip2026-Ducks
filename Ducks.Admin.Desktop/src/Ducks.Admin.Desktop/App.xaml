@@ -1,11 +1,12 @@
 ﻿<Application x:Class="Ducks.Admin.Desktop.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml">
+             xmlns:local="clr-namespace:Ducks.Admin.Desktop">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Theme.xaml"/>
+                <!-- Dicionários de Estilos e Cores da Ducks -->
+                <ResourceDictionary Source="Themes/DucksStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

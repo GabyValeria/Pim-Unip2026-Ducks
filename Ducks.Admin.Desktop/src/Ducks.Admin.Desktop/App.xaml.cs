@@ -11,33 +11,56 @@ namespace Ducks.Admin.Desktop
     {
         public static IServiceProvider? ServiceProvider { get; private set; }
 
+        public App()
+        {
+            // Captura qualquer erro invisível ou falha de renderização do WPF
+            this.DispatcherUnhandledException += (s, e) =>
+            {
+                MessageBox.Show($"Erro de Interface (WPF): {e.Exception.Message}\n\nDetalhes: {e.Exception.InnerException?.Message}", 
+                    "Ducks Admin - Erro Crítico", MessageBoxButton.OK, MessageBoxImage.Error);
+                e.Handled = true;
+                Shutdown();
+            };
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            var services = new ServiceCollection();
+            try
+            {
+                var services = new ServiceCollection();
 
-            // Registro de Serviços HTTP e API
-            services.AddHttpClient<IApiClient, ApiClient>();
-            services.AddHttpClient<IAiService, AiService>();
-            services.AddSingleton<ISignalRService, SignalRService>();
+                // Registro de Serviços HTTP e API
+                services.AddHttpClient<IApiClient, ApiClient>();
+                services.AddHttpClient<IAiService, AiService>();
+                services.AddSingleton<ISignalRService, SignalRService>();
 
-            // Registro de ViewModels
-            services.AddTransient<LoginViewModel>();
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<UsersViewModel>();
-            services.AddTransient<AiAssistantViewModel>();
-            services.AddTransient<DashboardViewModel>();
+                // Registro de ViewModels
+                services.AddTransient<LoginViewModel>();
+                services.AddTransient<MainViewModel>();
+                services.AddTransient<UsersViewModel>();
+                services.AddTransient<AiAssistantViewModel>();
+                services.AddTransient<DashboardViewModel>();
 
-            // Registro de Janelas
-            services.AddTransient<LoginWindow>();
-            services.AddTransient<MainWindow>();
+                // Registro de Janelas (Views)
+                services.AddTransient<LoginWindow>();
+                services.AddTransient<MainWindow>();
 
-            ServiceProvider = services.BuildServiceProvider();
+                ServiceProvider = services.BuildServiceProvider();
 
-            // Inicia exibindo a Janela de Login
-            var loginWindow = ServiceProvider.GetRequiredService<LoginWindow>();
-            loginWindow.Show();
+                // Instancia e exibe a Janela de Login de forma explícita
+                var loginWindow = ServiceProvider.GetRequiredService<LoginWindow>();
+                this.MainWindow = loginWindow;
+                loginWindow.Show();
+                loginWindow.Activate();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao iniciar os serviços: {ex.Message}", 
+                    "Ducks Admin - Erro de Inicialização", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+            }
         }
     }
 }
