@@ -1,9 +1,14 @@
 using Ducks.Api.Middlewares;
+using Ducks.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adição de serviços essenciais
+// Adição do Entity Framework Core para Azure SQL Database
+builder.Services.AddDbContext<DucksDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -13,7 +18,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Pipeline de Middlewares
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
