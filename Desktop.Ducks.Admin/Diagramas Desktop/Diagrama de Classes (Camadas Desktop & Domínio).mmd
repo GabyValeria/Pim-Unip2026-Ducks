@@ -1,0 +1,41 @@
+classDiagram
+    class ObservableObject {
+        +OnPropertyChanged()
+    }
+
+    class UserManagementViewModel {
+        -IUserAdminApiService _userAdminService
+        -IDialogService _dialogService
+        +ObservableCollection Users
+        +CarregarUsuariosAsync()
+        +ToggleBlockAsync()
+    }
+
+    class CoursesAndTrailsViewModel {
+        -IHttpClientFactory _httpClientFactory
+        +ObservableCollection Itens
+        +CarregarDadosAsync()
+    }
+
+    class AiAutomationViewModel {
+        -IAiAutomationApiService _aiService
+        -IDialogService _dialogService
+        +ExecutarAssistenteCommand
+        +SalvarPdfCommand
+    }
+
+    class UserDto {
+        +int UsuarioID
+        +string NomeUsuario
+        +string Email
+        +string Role
+        +bool IsBlocked
+    }
+
+    ObservableObject <|-- UserManagementViewModel
+    ObservableObject <|-- CoursesAndTrailsViewModel
+    ObservableObject <|-- AiAutomationViewModel
+    UserManagementViewModel --> UserDto
+    CoursesAndTrailsViewModel --> TrilhaItemDto
+
+    %% Title: Diagrama de Classes - Camada de Aplicação Desktop Admin

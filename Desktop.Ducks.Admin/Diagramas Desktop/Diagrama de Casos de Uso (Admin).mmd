@@ -1,0 +1,22 @@
+graph TD
+    Admin([Administrador])
+
+    subgraph Ducks Admin Desktop
+        UC1(Autenticar no Sistema via JWT)
+        UC2(Gerenciar Usuários & Bloqueios)
+        UC3(Gerenciar Permissões RBAC)
+        UC4(Gerenciar Cursos, Trilhas & Aulas)
+        UC5(Executar IA Administrativa & Salvar Relatórios)
+        UC6(Monitorar Auditoria de Logs)
+        UC7(Moderação de Conteúdo em Tempo Real)
+    end
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Admin --> UC5
+    Admin --> UC6
+    Admin --> UC7
+
+    %% Title: Diagrama de Casos de Uso - Painel Administrativo Ducks

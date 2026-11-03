@@ -1,0 +1,17 @@
+architecture-beta
+    group desktop(cloud)[Desktop Admin - WPF (.NET 10.0)]
+    group api(cloud)[Ducks.Api (.NET 10.0)]
+    group db(database)[Azure SQL Database]
+
+    service wpf(internet)[Ducks.Desktop.UI] in desktop
+    service app(server)[Ducks.Desktop.Application & Core] in desktop
+    service aspnet(server)[Ducks.Api (Controllers / EF Core)] in api
+    service openai(cloud)[OpenAI GPT-4o-mini] in api
+    service sql(database)[ducks-db] in db
+
+    wpf:R --> L:app
+    app:R --> L:aspnet
+    aspnet:R --> L:sql
+    aspnet:R --> T:openai
+
+    %% Title: Diagrama de Arquitetura - Ecossistema Ducks Admin

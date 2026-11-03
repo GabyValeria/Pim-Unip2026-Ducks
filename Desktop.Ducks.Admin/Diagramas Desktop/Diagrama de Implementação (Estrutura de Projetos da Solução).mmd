@@ -1,0 +1,19 @@
+graph TB
+    subgraph Solução Ducks.Desktop.slnx
+        subgraph src/
+            Core[Ducks.Desktop.Core <br/> DTOs & Modelos]
+            App[Ducks.Desktop.Application <br/> ViewModels, Interfaces & Serviços]
+            UI[Ducks.Desktop.UI <br/> Views XAML, Windows & DialogService]
+            Api[Ducks.Api <br/> Controllers & EF Core DbContext]
+        end
+        subgraph tests/
+            Tests[Ducks.Desktop.Tests <br/> xUnit & Moq Unit Tests]
+        end
+    end
+
+    UI --> App
+    App --> Core
+    Tests --> App
+    UI -.->|HTTP / REST + JWT| Api
+
+    %% Title: Diagrama de Implementação - Organização de Projetos .NET

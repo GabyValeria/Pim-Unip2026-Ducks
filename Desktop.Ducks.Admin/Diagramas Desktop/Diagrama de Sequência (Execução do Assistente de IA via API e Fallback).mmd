@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor Admin as Administrador
+    participant View as AiAutomationView
+    participant VM as AiAutomationViewModel
+    participant Service as AiAutomationApiService
+    participant API as Ducks.Api (AdminAiController)
+    participant OpenAI as OpenAI GPT-4o-mini
+
+    Admin->>View: Seleciona Tarefa & Insere Contexto
+    View->>VM: ExecutarAssistenteCommand
+    VM->>Service: ProcessarTarefaAdminAsync(request)
+    Service->>API: POST /api/admin/ai/automate (Bearer Token)
+    
+    alt API Conectada com Chave Válida
+        API->>OpenAI: Envia prompt sistêmico e contexto
+        OpenAI-->>API: Retorna análise gerada
+        API-->>Service: AiResponseDto (Sucesso = true)
+        Service-->>VM: Resultado Gerado
+    else Falha ou API Offline (Fallback Local)
+        API-->>Service: Erro 404 / 401 / Sem Chave
+        Service-->>VM: Exceção / Erro HTTP
+        VM->>VM: GerarAnaliseLocal() inteligente
+    end
+
+    VM-->>View: Atualiza ResultadoIa na UI
+    Admin->>View: Clica em Salvar Relatório / PDF
+    View->>VM: SalvarRelatorio()
+    VM-->>Admin: Arquivo salvo com sucesso via DialogService
+    
+    %% Title: Diagrama de Sequência - Fluxo do Assistente de IA Administrativa
