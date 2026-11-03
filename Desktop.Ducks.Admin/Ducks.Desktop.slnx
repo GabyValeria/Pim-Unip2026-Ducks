@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Ducks.Desktop.Application/Ducks.Desktop.Application.csproj" />
+    <Project Path="src/Ducks.Desktop.Core/Ducks.Desktop.Core.csproj" />
+    <Project Path="src/Ducks.Desktop.UI/Ducks.Desktop.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Ducks.Desktop.Tests/Ducks.Desktop.Tests.csproj" />
+  </Folder>
+</Solution>

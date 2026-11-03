@@ -14,6 +14,7 @@ public class DucksDbContext : DbContext
     public DbSet<Aula> Aulas => Set<Aula>();
     public DbSet<XPUsuario> XPUsuarios => Set<XPUsuario>();
     public DbSet<HistoricoXP> HistoricoXPs => Set<HistoricoXP>();
+    public DbSet<LogAuditoria> LogsAuditoria => Set<LogAuditoria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

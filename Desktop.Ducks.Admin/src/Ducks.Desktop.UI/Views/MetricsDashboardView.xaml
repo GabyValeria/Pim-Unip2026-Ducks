@@ -1,0 +1,82 @@
+<UserControl x:Class="Ducks.Desktop.UI.Views.MetricsDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F8F9FC">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="30">
+            <!-- Cabeçalho -->
+            <TextBlock Text="📊 Visão Geral / Métricas" FontSize="26" FontWeight="Bold" Foreground="#1E293B"/>
+            <TextBlock Text="Acompanhe o desempenho geral, usuários ativos por perfil e indicadores da plataforma." FontSize="14" Foreground="#64748B" Margin="0,4,0,25"/>
+
+            <!-- Cards de Indicadores -->
+            <UniformGrid Columns="3" Margin="0,0,0,20">
+                <!-- Card 1: Usuários Ativos com Filtro -->
+                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,15,0">
+                    <StackPanel>
+                        <DockPanel LastChildFill="False">
+                            <TextBlock Text="Total de Usuários" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" VerticalAlignment="Center"/>
+                            <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding OpcoesFiltroPapeis}" SelectedItem="{Binding FiltroSelecionado}" Width="120" Height="28" VerticalContentAlignment="Center"/>
+                        </DockPanel>
+                        <TextBlock Text="{Binding TotalUsuariosAtivos}" FontSize="36" FontWeight="Bold" Foreground="#1E293B" Margin="0,10,0,5"/>
+                        <TextBlock Text="Filtro ativo por perfil de acesso" FontSize="12" Foreground="#059669"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 2: Retenção -->
+                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,15,0">
+                    <StackPanel>
+                        <TextBlock Text="Taxa de Retenção Média" FontSize="14" FontWeight="SemiBold" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding TaxaRetencao}" FontSize="36" FontWeight="Bold" Foreground="#1E293B" Margin="0,10,0,5"/>
+                        <TextBlock Text="⭐ Excelente engajamento" FontSize="12" Foreground="#2563EB"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 3: Moderação -->
+                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Moderação Pendente" FontSize="14" FontWeight="SemiBold" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding ModercaoPendente}" FontSize="36" FontWeight="Bold" Foreground="#DC2626" Margin="0,10,0,5"/>
+                        <TextBlock Text="⚠️ Requer atenção" FontSize="12" Foreground="#DC2626"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Botão de Atualizar -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+                <Button Content="🔄 Atualizar Métricas" Command="{Binding CarregarMetricasCommand}" Width="180" Height="40" Background="#2563EB" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
+                <TextBlock Text="{Binding StatusMensagem}" FontSize="13" Foreground="#64748B" VerticalAlignment="Center" Margin="15,0,0,0"/>
+            </StackPanel>
+
+            <!-- Seção de Gráficos Analíticos -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="25">
+                <StackPanel>
+                    <TextBlock Text="📈 Distribuição Percentual de Perfis na Plataforma" FontSize="18" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,20"/>
+
+                    <!-- Gráfico 1: Alunos -->
+                    <DockPanel Margin="0,0,0,12">
+                        <TextBlock Text="Alunos (70%)" Width="140" FontWeight="SemiBold" Foreground="#475569" VerticalAlignment="Center"/>
+                        <ProgressBar Value="{Binding ProgressoAlunos}" Maximum="100" Height="14" Background="#F1F5F9" Foreground="#2563EB"/>
+                    </DockPanel>
+
+                    <!-- Gráfico 2: Moderadores -->
+                    <DockPanel Margin="0,0,0,12">
+                        <TextBlock Text="Moderadores (15%)" Width="140" FontWeight="SemiBold" Foreground="#475569" VerticalAlignment="Center"/>
+                        <ProgressBar Value="{Binding ProgressoModeradores}" Maximum="100" Height="14" Background="#F1F5F9" Foreground="#10B981"/>
+                    </DockPanel>
+
+                    <!-- Gráfico 3: Curadores -->
+                    <DockPanel Margin="0,0,0,12">
+                        <TextBlock Text="Curadores (10%)" Width="140" FontWeight="SemiBold" Foreground="#475569" VerticalAlignment="Center"/>
+                        <ProgressBar Value="{Binding ProgressoCuradores}" Maximum="100" Height="14" Background="#F1F5F9" Foreground="#F59E0B"/>
+                    </DockPanel>
+
+                    <!-- Gráfico 4: Administradores -->
+                    <DockPanel>
+                        <TextBlock Text="Administradores (5%)" Width="140" FontWeight="SemiBold" Foreground="#475569" VerticalAlignment="Center"/>
+                        <ProgressBar Value="{Binding ProgressoAdministradores}" Maximum="100" Height="14" Background="#F1F5F9" Foreground="#8B5CF6"/>
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
