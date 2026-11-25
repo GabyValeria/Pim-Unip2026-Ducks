@@ -10,4 +10,8 @@ public class Aula
     public string UrlConteudo { get; set; } = string.Empty;
     public int IndiceOrdem { get; set; }
     public string Status { get; set; } = "APROVADO";
+
+    // Acrescentados na etapa de módulos e aulas (texto da aula e data da última alteração).
+    public string? Conteudo { get; set; }
+    public DateTime AtualizadoEm { get; set; } = DateTime.UtcNow;
 }

@@ -4,10 +4,9 @@ namespace Ducks.Application.DTOs;
 
 public class LoginDto
 {
-    [Required(ErrorMessage = "O e-mail é obrigatório.")]
-    [EmailAddress(ErrorMessage = "Formato de e-mail inválido.")]
+    [Required, EmailAddress, StringLength(150)]
     public string Email { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "A senha é obrigatória.")]
+    [Required, StringLength(128, MinimumLength = 1)]
     public string Senha { get; set; } = string.Empty;
 }

@@ -1,58 +1,62 @@
+using System.ComponentModel.DataAnnotations;
 using Ducks.Domain.Entities;
 using Ducks.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Ducks.Api.Controllers;
 
-[Authorize]
+[Authorize(Policy = "ContentManagement")]
 [ApiController]
 [Route("api/admin/content")]
-public class AdminContentController : ControllerBase
+public class AdminContentController(DucksDbContext context) : ControllerBase
 {
-    private readonly DucksDbContext _context;
-
-    public AdminContentController(DucksDbContext context)
-    {
-        _context = context;
-    }
-
     [HttpGet("trilhas")]
-    public async Task<IActionResult> GetTrilhas()
+    public async Task<IActionResult> GetTrilhas(CancellationToken cancellationToken)
     {
-        // Consulta segura baseada na entidade existente TrilhasAprendizagem
-        var trilhas = await _context.TrilhasAprendizagem.ToListAsync();
-        
-        var resultado = trilhas.Select(t => new
-        {
-            TrilhaID = t.TrilhaID,
-            NomeTrilha = t.NomeTrilha,
-            Materia = "Tecnologia e Desenvolvimento", // Categoria padrão da plataforma
-            TotalModulos = 2,  // Quantidade padrão de módulos estruturados
-            TotalAtividades = 5, // Quantidade padrão de atividades/aulas
-            Status = string.IsNullOrEmpty(t.Status) ? "APROVADO" : t.Status
-        }).ToList();
-
-        return Ok(resultado);
+        var tracks = await context.TrilhasAprendizagem.AsNoTracking()
+            .OrderBy(t => t.NomeTrilha)
+            .Select(t => new { t.TrilhaID, t.NomeTrilha, t.Descricao, t.MateriaID, t.Status, t.AtualizadoEm })
+            .ToListAsync(cancellationToken);
+        return Ok(tracks);
     }
 
     [HttpPost("trilhas")]
-    public async Task<IActionResult> CreateTrilha([FromBody] TrilhaAprendizagem trilha)
+    public async Task<IActionResult> CreateTrilha([FromBody] CreateTrilhaDto dto, CancellationToken cancellationToken)
     {
-        _context.TrilhasAprendizagem.Add(trilha);
-        await _context.SaveChangesAsync();
-        return Ok(new { sucesso = true, trilhaID = trilha.TrilhaID });
+        var track = new TrilhaAprendizagem
+        {
+            NomeTrilha = dto.NomeTrilha.Trim(),
+            Descricao = dto.Descricao.Trim(),
+            MateriaID = dto.MateriaID,
+            Status = "PENDENTE",
+            AtualizadoEm = DateTime.UtcNow
+        };
+        context.TrilhasAprendizagem.Add(track);
+        if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var adminId))
+            context.LogsAuditoria.Add(new LogAuditoria { UsuarioID = adminId, Acao = "TRILHA_CRIADA", Detalhes = track.NomeTrilha, CriadoEm = DateTime.UtcNow });
+        await context.SaveChangesAsync(cancellationToken);
+        return Created("/api/admin/content/trilhas", new { track.TrilhaID });
     }
 
-    [HttpDelete("trilhas/{id}")]
-    public async Task<IActionResult> DeleteTrilha(int id)
+    [HttpDelete("trilhas/{id:int}")]
+    public async Task<IActionResult> DeleteTrilha(int id, CancellationToken cancellationToken)
     {
-        var trilha = await _context.TrilhasAprendizagem.FindAsync(id);
-        if (trilha == null) return NotFound(new { mensagem = "Trilha não encontrada." });
-
-        _context.TrilhasAprendizagem.Remove(trilha);
-        await _context.SaveChangesAsync();
-        return Ok(new { sucesso = true });
+        var track = await context.TrilhasAprendizagem.FindAsync(new object?[] { id }, cancellationToken);
+        if (track is null) return NotFound();
+        context.TrilhasAprendizagem.Remove(track);
+        if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var adminId))
+            context.LogsAuditoria.Add(new LogAuditoria { UsuarioID = adminId, Acao = "TRILHA_EXCLUIDA", Detalhes = $"TrilhaID: {id}", CriadoEm = DateTime.UtcNow });
+        await context.SaveChangesAsync(cancellationToken);
+        return NoContent();
     }
+}
+
+public sealed class CreateTrilhaDto
+{
+    [Required, StringLength(150, MinimumLength = 3)] public string NomeTrilha { get; set; } = string.Empty;
+    [StringLength(2000)] public string Descricao { get; set; } = string.Empty;
+    [Range(1, int.MaxValue)] public int MateriaID { get; set; }
 }

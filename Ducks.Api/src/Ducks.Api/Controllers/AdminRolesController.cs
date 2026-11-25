@@ -1,66 +1,57 @@
+using System.ComponentModel.DataAnnotations;
 using Ducks.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Ducks.Domain.Entities;
 
 namespace Ducks.Api.Controllers;
 
-[Authorize]
+[Authorize(Policy = "AdminOnly")]
 [ApiController]
 [Route("api/admin/roles")]
-public class AdminRolesController : ControllerBase
+public class AdminRolesController(DucksDbContext context) : ControllerBase
 {
-    private readonly DucksDbContext _context;
-
-    public AdminRolesController(DucksDbContext context)
-    {
-        _context = context;
-    }
-
     [HttpGet]
-    public async Task<IActionResult> GetRoles()
+    public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
     {
-        try
-        {
-            var papeis = await _context.Database
-                .SqlQueryRaw<PapelModel>("SELECT PapelID, NomePapel, Descricao FROM Papeis")
-                .ToListAsync();
-            return Ok(papeis);
-        }
-        catch
-        {
-            // Fallback caso a tabela não retorne via SqlQueryRaw no EF Core 10
-            var fallback = new List<PapelModel>
-            {
-                new() { PapelID = 1, NomePapel = "Aluno", Descricao = "Estudante" },
-                new() { PapelID = 2, NomePapel = "Administrador", Descricao = "Admin Geral" },
-                new() { PapelID = 3, NomePapel = "Curador", Descricao = "Curador de Conteúdo" },
-                new() { PapelID = 4, NomePapel = "Moderador", Descricao = "Moderador" }
-            };
-            return Ok(fallback);
-        }
+        var roles = await context.Database
+            .SqlQueryRaw<PapelModel>("SELECT PapelID, NomePapel, Descricao FROM dbo.Papeis")
+            .ToListAsync(cancellationToken);
+        return Ok(roles);
     }
 
     [HttpPost("assign")]
-    public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto dto)
+    public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto dto, CancellationToken cancellationToken)
     {
-        await _context.Database.ExecuteSqlRawAsync(
-            "DELETE FROM UsuarioPapeis WHERE UsuarioID = {0}; INSERT INTO UsuarioPapeis (UsuarioID, PapelID, AtribuidoEm) VALUES ({0}, {1}, GETDATE());",
-            dto.UsuarioID, dto.PapelID);
-
-        return Ok(new { sucesso = true, mensagem = "Papel do usuário atualizado com sucesso." });
+        var userExists = await context.Usuarios.AnyAsync(u => u.UsuarioID == dto.UsuarioID, cancellationToken);
+        var roleExists = await context.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM dbo.Papeis WHERE PapelID = {dto.PapelID}").SingleAsync(cancellationToken) > 0;
+        if (!userExists || !roleExists) return NotFound(new { message = "Usuário ou papel não encontrado." });
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        await context.Database.ExecuteSqlInterpolatedAsync(
+            $"DELETE FROM dbo.UsuarioPapeis WHERE UsuarioID = {dto.UsuarioID};", cancellationToken);
+        await context.Database.ExecuteSqlInterpolatedAsync(
+            $"INSERT INTO dbo.UsuarioPapeis (UsuarioID, PapelID, AtribuidoEm) VALUES ({dto.UsuarioID}, {dto.PapelID}, SYSUTCDATETIME());", cancellationToken);
+        if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var adminId))
+        {
+            context.LogsAuditoria.Add(new LogAuditoria { UsuarioID = adminId, Acao = "PAPEL_ATRIBUIDO", Detalhes = $"UsuarioID: {dto.UsuarioID}; PapelID: {dto.PapelID}", CriadoEm = DateTime.UtcNow });
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        await transaction.CommitAsync(cancellationToken);
+        return NoContent();
     }
 }
 
-public class PapelModel
-    {
+public sealed class PapelModel
+{
     public int PapelID { get; set; }
     public string NomePapel { get; set; } = string.Empty;
     public string Descricao { get; set; } = string.Empty;
 }
 
-public class AssignRoleDto
+public sealed class AssignRoleDto
 {
-    public int UsuarioID { get; set; }
-    public int PapelID { get; set; }
+    [Range(1, int.MaxValue)] public int UsuarioID { get; set; }
+    [Range(1, int.MaxValue)] public int PapelID { get; set; }
 }

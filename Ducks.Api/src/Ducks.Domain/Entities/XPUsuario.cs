@@ -1,5 +1,3 @@
-using System;
-
 namespace Ducks.Domain.Entities;
 
 public class XPUsuario
@@ -8,4 +6,5 @@ public class XPUsuario
     public int TotalXP { get; set; }
     public int NivelAtualID { get; set; }
     public DateTime AtualizadoEm { get; set; } = DateTime.UtcNow;
+    public byte[] RowVersion { get; set; } = [];
 }

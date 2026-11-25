@@ -7,4 +7,7 @@ public class AuthRespostaDto
     public string Email { get; set; } = string.Empty;
     public string Token { get; set; } = string.Empty;
     public DateTime Expiracao { get; set; }
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime RefreshTokenExpiracao { get; set; }
+    public string? CsrfToken { get; set; }
 }

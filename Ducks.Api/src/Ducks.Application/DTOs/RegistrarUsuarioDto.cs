@@ -4,15 +4,12 @@ namespace Ducks.Application.DTOs;
 
 public class RegistrarUsuarioDto
 {
-    [Required(ErrorMessage = "O nome de usuário é obrigatório.")]
-    [StringLength(100, MinimumLength = 3, ErrorMessage = "O nome deve ter entre 3 e 100 caracteres.")]
+    [Required, StringLength(100, MinimumLength = 3)]
     public string NomeUsuario { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "O e-mail é obrigatório.")]
-    [EmailAddress(ErrorMessage = "Formato de e-mail inválido.")]
+    [Required, EmailAddress, StringLength(150)]
     public string Email { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "A senha é obrigatória.")]
-    [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter no mínimo 6 caracteres.")]
+    [Required, StringLength(128, MinimumLength = 8)]
     public string Senha { get; set; } = string.Empty;
 }

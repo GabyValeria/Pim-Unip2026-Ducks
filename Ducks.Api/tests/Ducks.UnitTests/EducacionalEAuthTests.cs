@@ -57,5 +57,16 @@ public class EducacionalEAuthTests
         Equal(2, historicoCount); // Confirma registros na tabela de histórico sem ranking
     }
 
+
+    [Fact]
+    public async Task EducacionalService_Deve_Rejeitar_XP_Zero()
+    {
+        using var context = ObterContextoEmMemoria();
+        var servico = new EducacionalService(context);
+
+        await Assert.ThrowsAsync<Ducks.Domain.Exceptions.BusinessRuleException>(
+            () => servico.AdicionarXPAsync(10, 0, "Ajuste inválido"));
+    }
+
     private static void Equal(int esperado, int atual) => Assert.Equal(esperado, atual);
 }

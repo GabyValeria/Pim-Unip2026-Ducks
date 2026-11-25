@@ -5,36 +5,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ducks.Api.Controllers;
 
-[Authorize]
+[Authorize(Policy = "AdminOnly")]
 [ApiController]
 [Route("api/admin/metrics")]
-public class AdminMetricsController : ControllerBase
+public class AdminMetricsController(DucksDbContext context) : ControllerBase
 {
-    private readonly DucksDbContext _context;
-
-    public AdminMetricsController(DucksDbContext context)
-    {
-        _context = context;
-    }
-
     [HttpGet("summary")]
-    public async Task<IActionResult> GetSummary()
+    public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
     {
-        var totalUsuarios = await _context.Usuarios.CountAsync();
-        var totalTrilhas = await _context.TrilhasAprendizagem.CountAsync();
-        var totalAulasConcluidas = await _context.Aulas.CountAsync();
-        var totalXp = await _context.XPUsuarios.SumAsync(x => (int?)x.TotalXP) ?? 0;
+        var totalUsuarios = await context.Usuarios.CountAsync(cancellationToken);
+        var usuariosAtivos = await context.Usuarios.CountAsync(u => u.EstaAtivo, cancellationToken);
+        var totalTrilhas = await context.TrilhasAprendizagem.CountAsync(cancellationToken);
+        var totalAulasCadastradas = await context.Aulas.CountAsync(cancellationToken);
+        var totalXp = await context.XPUsuarios.SumAsync(x => (int?)x.TotalXP, cancellationToken) ?? 0;
+        var trilhasPendentes = await context.TrilhasAprendizagem.CountAsync(t => t.Status == "PENDENTE", cancellationToken);
+        var aulasPendentes = await context.Aulas.CountAsync(a => a.Status == "PENDENTE", cancellationToken);
 
-        var metrics = new
+        return Ok(new
         {
-            TotalUsuariosAtivos = totalUsuarios,
+            TotalUsuarios = totalUsuarios,
+            TotalUsuariosAtivos = usuariosAtivos,
             TotalTrilhas = totalTrilhas,
-            TotalAulasConcluidas = totalAulasConcluidas,
+            TotalAulasCadastradas = totalAulasCadastradas,
             TotalXpDistribuido = totalXp,
-            TaxaRetencaoMedia = 88.5,
-            ItensPendentesModercao = 0
-        };
-
-        return Ok(metrics);
+            ItensPendentesModeracao = trilhasPendentes + aulasPendentes
+        });
     }
 }

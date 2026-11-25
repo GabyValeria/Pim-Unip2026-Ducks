@@ -39,7 +39,7 @@ graph TD
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Cliente / Usuário
+    actor User as Usuário
     participant API as Ducks.Api (/api/auth/login)
     participant DB as Stored Procedure (sp_AutenticarUsuario)
     participant JWT as JwtTokenService
@@ -64,7 +64,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Estudante
+    actor User as Aluno
     participant API as Ducks.Api (/api/educacional/provas/submeter)
     participant SP as Stored Procedure (sp_SubmeterRespostaProva)
     participant DB as Tabela XPUsuario & HistoricoXP
@@ -83,3 +83,21 @@ sequenceDiagram
     end
     API-->>User: 200 OK (Resultado da Questão + Status de Gamificação)
 ```
+
+## 4. Duck Bot integrado à OpenAI
+
+```mermaid
+graph TD
+    Student[Aluno - Web / Mobile] -->|HTTPS + JWT| ChatAPI[Ducks API - ChatController]
+    ChatAPI --> Bot[OpenAIDuckBotService]
+    Bot -->|Responses API - HTTPS| OpenAI[OpenAI API]
+    ChatAPI --> Conversation[ChatConversationService]
+    Conversation --> SQL[(Azure SQL - ChatConversations / ChatMessages)]
+    Bot -->|Fallback se indisponível| FAQ[FAQ local]
+    FAQ --> ChatAPI
+    OpenAI -->|Resposta do tutor| Bot
+    Bot --> ChatAPI
+    ChatAPI --> Student
+```
+
+O histórico é obtido no banco pelo `ConversationId` e pelo usuário autenticado; o cliente não pode enviar histórico arbitrário. A chave OpenAI permanece exclusivamente no servidor.

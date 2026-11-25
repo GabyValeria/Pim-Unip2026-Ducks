@@ -25,6 +25,7 @@ graph LR
 * **Trilhas e Conteúdo:** Consulta e gestão de matérias, trilhas de aprendizagem, módulos e aulas.
 * **Gamificação (XP):** Consulta e acréscimo dinâmico de XP (pontos de experiência) e níveis por usuário.
 * **Avaliações:** Gestão de banco de questões, simulados e cálculo de progresso.
+* **Duck Bot com OpenAI:** Tutor virtual integrado à Responses API, com histórico por usuário persistido no Azure SQL.
 * **Health Check:** Endpoint `/api/health` para monitoramento operacional.
 
 ---
@@ -50,5 +51,13 @@ graph LR
 | **Conteúdo** | `GET` | `/api/educacional/trilhas` | Lista trilhas de aprendizagem disponíveis |
 | **Gamificação**| `GET` | `/api/educacional/xp/{usuarioId}` | Consulta saldo de XP e nível atual |
 | **Gamificação**| `POST`| `/api/educacional/xp/adicionar` | Incrementa XP por conclusão de aula/atividade |
+| **Duck Bot** | `POST` | `/api/chat/messages` | Envia pergunta ao tutor virtual (JWT obrigatório) |
+| **Duck Bot** | `GET` | `/api/chat/conversations/{conversationId}/messages` | Recupera o histórico da conversa do usuário autenticado |
+
+A lista completa das rotas acrescentadas (módulos e aulas, moderação, matrículas, questões e simulados, tentativas, desafios e recuperação de senha), com os papéis permitidos, está no [README.md](README.md#endpoints-acrescentados).
 
 ---
+
+## Duck Bot e OpenAI
+
+O Duck Bot é executado dentro da própria Ducks API e utiliza a OpenAI Responses API. Configure `OpenAI__ApiKey` e, opcionalmente, `OpenAI__Model` no arquivo `.env`, User Secrets ou Key Vault. O modelo padrão é `gpt-6-luna`. O histórico de mensagens é persistido em `dbo.ChatMessages`, vinculado ao usuário e à conversa. O endpoint de histórico só retorna mensagens ao proprietário da conversa.
