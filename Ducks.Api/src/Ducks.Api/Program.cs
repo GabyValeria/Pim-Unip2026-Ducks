@@ -252,15 +252,13 @@ app.UseStatusCodePages(async statusContext =>
         Extensions = { ["traceId"] = statusContext.HttpContext.TraceIdentifier }
     });
 });
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ducks API v1");
-        c.RoutePrefix = string.Empty;
-    });
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Ducks API v1");
+    options.RoutePrefix = string.Empty;
+});
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("DucksCors");
