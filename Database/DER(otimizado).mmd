@@ -1,57 +1,94 @@
 erDiagram
-    direction TB
-    "DER Resumido — Plataforma Ducks"
+    %% ========================================================================
+    %% PROJETO DUCKS - DER ESSENCIAL (ENTIDADES PRINCIPAIS)
+    %% Banco de Dados: [ducks-db] (Azure SQL Server)
+    %% ========================================================================
 
     Usuarios {
         int UsuarioID PK
-        string NomeUsuario
-        string Email
+        nvarchar NomeUsuario UK
+        nvarchar Email UK
+        bit EstaAtivo
     }
 
     Papeis {
         int PapelID PK
-        string NomePapel
+        nvarchar NomePapel UK
+    }
+
+    UsuarioPapeis {
+        int UsuarioID PK,FK
+        int PapelID PK,FK
     }
 
     Materias {
         int MateriaID PK
-        string NomeMateria
+        nvarchar NomeMateria UK
     }
 
     TrilhasAprendizagem {
         int TrilhaID PK
-        string NomeTrilha
         int MateriaID FK
+        nvarchar NomeTrilha
+        nvarchar Status
     }
 
     Modulos {
         int ModuloID PK
         int TrilhaID FK
-        string Titulo
+        nvarchar Titulo
+        int IndiceOrdem
     }
 
     Aulas {
         int AulaID PK
         int ModuloID FK
-        string Titulo
+        nvarchar Titulo
+        nvarchar Status
+    }
+
+    UsuarioTrilhas {
+        int UsuarioTrilhaID PK
+        int UsuarioID FK
+        int TrilhaID FK
+        decimal ProgressoPercentual
+        nvarchar Status
+    }
+
+    ProgressoUsuario {
+        int ProgressoID PK
+        int UsuarioID FK
+        int AulaID FK
+        datetime2 ConcluidoEm
     }
 
     Questoes {
         int QuestaoID PK
         int MateriaID FK
-        string TipoQuestao
+        nvarchar TextoQuestao
+        nvarchar NivelDificuldade
+        nvarchar Status
     }
 
     AlternativasQuestao {
-        int AlternativaID PK, FK
-        int QuestaoID PK, FK
+        int AlternativaID PK
+        int QuestaoID FK
+        nvarchar TextoAlternativa
         bit EhCorreta
     }
 
     Provas {
         int ProvaID PK
-        string Titulo
         int MateriaID FK
+        nvarchar Titulo
+        nvarchar TipoProva
+        int TotalQuestoes
+    }
+
+    ProvaQuestoes {
+        int ProvaID PK,FK
+        int QuestaoID PK,FK
+        int OrdemQuestao
     }
 
     ProvasUsuario {
@@ -59,30 +96,102 @@ erDiagram
         int UsuarioID FK
         int ProvaID FK
         int Pontuacao
+        nvarchar Status
+    }
+
+    RespostasProvasUsuario {
+        int RespostaUsuarioID PK
+        int ProvaUsuarioID FK
+        int QuestaoID FK
+        int AlternativaSelecionadaID FK
+        bit EhCorreta
+    }
+
+    NiveisGamificacao {
+        int NivelID PK
+        int NumeroNivel UK
+        int XPMinimo UK
+        nvarchar TituloNivel
     }
 
     XPUsuario {
-        int UsuarioID PK, FK
-        int TotalXP
+        int UsuarioID PK,FK
         int NivelAtualID FK
+        int TotalXP
     }
 
-    %% Relacionamentos Macro
-    Usuarios ||--o{ UsuarioPapeis : "possui papéis"
-    Papeis ||--o{ UsuarioPapeis : "atribuído a"
-    
-    Materias ||--o{ TrilhasAprendizagem : "categoriza"
-    TrilhasAprendizagem ||--o{ Modulos : "contém"
-    Modulos ||--o{ Aulas : "possui"
-    
-    Usuarios ||--o{ UsuarioTrilhas : "inscreve-se"
-    TrilhasAprendizagem ||--o{ UsuarioTrilhas : "possui alunos"
-    
-    Materias ||--o{ Questoes : "agrupa"
-    Questoes ||--|{ AlternativasQuestao : "possui opções"
-    
-    Materias ||--o{ Provas : "gera avaliações"
+    Conquistas {
+        int ConquistaID PK
+        nvarchar NomeConquista UK
+    }
+
+    UsuarioConquistas {
+        int UsuarioID PK,FK
+        int ConquistaID PK,FK
+    }
+
+    Desafios {
+        int DesafioID PK
+        int TrilhaID FK
+        nvarchar Nome
+        int RecompensaXP
+        bit Ativo
+    }
+
+    ParticipacoesDesafio {
+        int ParticipacaoID PK
+        int DesafioID FK
+        int UsuarioID FK
+        nvarchar Status
+    }
+
+    ChatConversations {
+        uniqueidentifier ConversationId PK
+        int UsuarioID FK
+    }
+
+    ChatMessages {
+        uniqueidentifier MessageId PK
+        uniqueidentifier ConversationId FK
+        nvarchar Role
+        nvarchar Content
+    }
+
+    %% ========================================================================
+    %% RELACIONAMENTOS PRINCIPAIS
+    %% ========================================================================
+
+    Usuarios ||--o{ UsuarioPapeis : "possui"
+    Papeis ||--o{ UsuarioPapeis : "atribuido_a"
+
+    Materias ||--o{ TrilhasAprendizagem : "agrupa"
+    TrilhasAprendizagem ||--o{ Modulos : "compoe"
+    Modulos ||--o{ Aulas : "contem"
+
+    Usuarios ||--o{ UsuarioTrilhas : "matricula_em"
+    TrilhasAprendizagem ||--o{ UsuarioTrilhas : "recebe"
+    Usuarios ||--o{ ProgressoUsuario : "conclui"
+    Aulas ||--o{ ProgressoUsuario : "referencia"
+
+    Materias ||--o{ Questoes : "classifica"
+    Questoes ||--o{ AlternativasQuestao : "possui"
+    Materias |o--o{ Provas : "foca"
+    Provas ||--o{ ProvaQuestoes : "inclui"
+    Questoes ||--o{ ProvaQuestoes : "compoe"
+
     Usuarios ||--o{ ProvasUsuario : "realiza"
-    Provas ||--o{ ProvasUsuario : "sedia"
-    
-    Usuarios ||--|| XPUsuario : "acumula XP"
+    Provas ||--o{ ProvasUsuario : "possui"
+    ProvasUsuario ||--o{ RespostasProvasUsuario : "registra"
+    Questoes ||--o{ RespostasProvasUsuario : "responde"
+    AlternativasQuestao ||--o{ RespostasProvasUsuario : "escolhe"
+
+    Usuarios ||--o| XPUsuario : "acumula"
+    NiveisGamificacao ||--o{ XPUsuario : "define"
+    Usuarios ||--o{ UsuarioConquistas : "obtem"
+    Conquistas ||--o{ UsuarioConquistas : "concede"
+    TrilhasAprendizagem |o--o{ Desafios : "vincula"
+    Desafios ||--o{ ParticipacoesDesafio : "recebe"
+    Usuarios ||--o{ ParticipacoesDesafio : "participa"
+
+    Usuarios ||--o{ ChatConversations : "inicia"
+    ChatConversations ||--o{ ChatMessages : "contem"

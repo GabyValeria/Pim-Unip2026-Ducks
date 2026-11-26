@@ -1,58 +1,144 @@
 erDiagram
-    direction TB
-    "Diagrama Entidade-Relacionamento (DER) - Projeto Ducks"
+    %% ========================================================================
+    %% PROJETO DUCKS - DIAGRAMAS ENTIDADE-RELACIONAMENTO (DER COMPLETO)
+    %% Banco de Dados: [ducks-db] (Azure SQL Server)
+    %% ========================================================================
 
+    %% 1. SEGURANCA, USUARIOS E CONFIGURACOES
     Usuarios {
         int UsuarioID PK
-        string NomeUsuario
-        string Email
-        varbinary SenhaHash
+        nvarchar NomeUsuario UK
+        nvarchar Email UK
         bit EstaAtivo
         datetime2 CriadoEm
+        datetime2 AtualizadoEm
+        nvarchar SenhaHash
+        datetime2 SenhaAlteradaEm
     }
 
     Papeis {
         int PapelID PK
-        string NomePapel
-        string Descricao
+        nvarchar NomePapel UK
+        nvarchar Descricao
+        datetime2 CriadoEm
     }
 
     UsuarioPapeis {
-        int UsuarioID PK, FK
-        int PapelID PK, FK
+        int UsuarioID PK,FK
+        int PapelID PK,FK
         datetime2 AtribuidoEm
     }
 
+    RefreshTokens {
+        uniqueidentifier Id PK
+        int UsuarioID FK
+        char TokenHash UK
+        uniqueidentifier TokenFamilyId
+        datetime2 CriadoEm
+        datetime2 ExpiraEm
+        datetime2 RevogadoEm
+        uniqueidentifier SubstituidoPorId
+        nvarchar Dispositivo
+        timestamp RowVersion
+    }
+
+    TokensRecuperacaoSenha {
+        int TokenID PK
+        int UsuarioID FK
+        char TokenHash UK
+        datetime2 CriadoEm
+        datetime2 ExpiraEm
+        datetime2 UsadoEm
+    }
+
+    LogsAuditoria {
+        int LogID PK
+        int UsuarioID FK
+        nvarchar Acao
+        nvarchar Detalhes
+        nvarchar EnderecoIP
+        datetime2 CriadoEm
+    }
+
+    ConfiguracoesPlataforma {
+        int ConfiguracaoID PK
+        nvarchar Chave UK
+        nvarchar Valor
+        nvarchar Descricao
+        datetime2 AtualizadoEm
+        int AtualizadoPorUsuarioID FK
+    }
+
+    ConfiguracoesSistema {
+        nvarchar Chave PK
+        nvarchar Valor
+        datetime2 AtualizadoEm
+        int AtualizadoPor
+    }
+
+    %% 2. DOMINIO PEDAGOGICO
     Materias {
         int MateriaID PK
-        string NomeMateria
-        string Descricao
+        nvarchar NomeMateria UK
+        nvarchar Descricao
     }
 
     TrilhasAprendizagem {
         int TrilhaID PK
-        string NomeTrilha
-        string Descricao
+        nvarchar NomeTrilha
+        nvarchar Descricao
         int MateriaID FK
-        string Status
+        nvarchar Status
         int CriadoPorUsuarioID FK
         int AprovadoPorUsuarioID FK
+        datetime2 AtualizadoEm
     }
 
     Modulos {
         int ModuloID PK
         int TrilhaID FK
-        string Titulo
+        nvarchar Titulo
         int IndiceOrdem
+        nvarchar Descricao
+        nvarchar Status
+        datetime2 CriadoEm
+        datetime2 AtualizadoEm
     }
 
     Aulas {
         int AulaID PK
         int ModuloID FK
-        string Titulo
-        string UrlConteudo
+        nvarchar Titulo
+        nvarchar UrlConteudo
         int IndiceOrdem
-        string Status
+        nvarchar Status
+        int CriadoPorUsuarioID FK
+        int AprovadoPorUsuarioID FK
+        nvarchar Conteudo
+        datetime2 AtualizadoEm
+    }
+
+    RevisoesConteudo {
+        int RevisaoID PK
+        nvarchar TipoConteudo
+        int ConteudoID
+        nvarchar Acao
+        nvarchar StatusAnterior
+        nvarchar StatusNovo
+        nvarchar Justificativa
+        int UsuarioID FK
+        datetime2 CriadoEm
+    }
+
+    UsuarioTrilhas {
+        int UsuarioTrilhaID PK
+        int UsuarioID FK
+        int TrilhaID FK
+        datetime2 InscritoEm
+        datetime2 ConcluidoEm
+        decimal ProgressoPercentual
+        nvarchar Status
+        datetime2 CanceladoEm
     }
 
     ProgressoUsuario {
@@ -62,42 +148,57 @@ erDiagram
         datetime2 ConcluidoEm
     }
 
-    UsuarioTrilhas {
-        int UsuarioTrilhaID PK
-        int UsuarioID FK
-        int TrilhaID FK
-        decimal ProgressoPercentual
-        string Status
-    }
-
+    %% 3. DOMINIO DE AVALIACAO
     Questoes {
         int QuestaoID PK
         int MateriaID FK
-        string TextoQuestao
-        string TipoQuestao
+        nvarchar TextoQuestao
+        nvarchar TipoQuestao
         int Peso
-        string NivelDificuldade
-        string Status
+        nvarchar NivelDificuldade
+        nvarchar Status
+        int ModuloID FK
+        int CriadoPorUsuarioID FK
+        int AprovadoPorUsuarioID FK
+        int TrilhaID FK
+        int AulaID FK
+        nvarchar Explicacao
+        nvarchar Assunto
+        nvarchar Tags
+        datetime2 CriadoEm
+        datetime2 AtualizadoEm
     }
 
     AlternativasQuestao {
-        int AlternativaID PK, FK
-        int QuestaoID PK, FK
-        string TextoAlternativa
+        int AlternativaID PK
+        int QuestaoID FK
+        nvarchar TextoAlternativa
         bit EhCorreta
+        nvarchar Explicacao
     }
 
     Provas {
         int ProvaID PK
-        string Titulo
-        string TipoProva
+        nvarchar Titulo
+        nvarchar TipoProva
         int MateriaID FK
         int TotalQuestoes
+        datetime2 CriadoEm
+        nvarchar Descricao
+        int TrilhaID FK
+        int ModuloID FK
+        int TempoLimiteMinutos
+        int MaxTentativas
+        int NotaMinimaAprovacao
+        int RecompensaXP
+        nvarchar Status
+        int CriadoPorUsuarioID FK
+        datetime2 AtualizadoEm
     }
 
     ProvaQuestoes {
-        int ProvaID PK, FK
-        int QuestaoID PK, FK
+        int ProvaID PK,FK
+        int QuestaoID PK,FK
         int OrdemQuestao
     }
 
@@ -108,7 +209,12 @@ erDiagram
         datetime2 IniciadoEm
         datetime2 ConcluidoEm
         int Pontuacao
-        string Status
+        nvarchar Status
+        int NumeroTentativa
+        datetime2 PrazoEm
+        int TotalQuestoes
+        decimal NotaPercentual
+        int XPGanho
     }
 
     RespostasProvasUsuario {
@@ -117,73 +223,164 @@ erDiagram
         int QuestaoID FK
         int AlternativaSelecionadaID FK
         bit EhCorreta
+        datetime2 RespondidoEm
+    }
+
+    %% 4. DOMINIO DE GAMIFICACAO
+    NiveisGamificacao {
+        int NivelID PK
+        int NumeroNivel UK
+        int XPMinimo UK
+        nvarchar TituloNivel
     }
 
     XPUsuario {
-        int UsuarioID PK, FK
+        int UsuarioID PK,FK
         int TotalXP
         int NivelAtualID FK
+        datetime2 AtualizadoEm
+        timestamp RowVersion
     }
 
-    NiveisGamificacao {
-        int NivelID PK
-        int NumeroNivel
-        int XPMinimo
-        string TituloNivel
+    HistoricoXP {
+        int HistoricoXPID PK
+        int UsuarioID FK
+        int QuantidadeXP
+        nvarchar Motivo
+        int ReferenciaID
+        datetime2 CriadoEm
     }
 
     Conquistas {
         int ConquistaID PK
-        string NomeConquista
-        string Descricao
-        string UrlIcone
+        nvarchar NomeConquista UK
+        nvarchar Descricao
+        nvarchar UrlIcone
     }
 
     ConquistasUsuario {
-        int UsuarioID PK, FK
-        int ConquistaID PK, FK
+        int UsuarioID PK,FK
+        int ConquistaID PK,FK
         datetime2 ConquistadoEm
     }
 
-    LogsAuditoria {
-        int LogID PK
+    UsuarioConquistas {
+        int UsuarioID PK,FK
+        int ConquistaID PK,FK
+        datetime2 ConquistadaEm
+    }
+
+    Desafios {
+        int DesafioID PK
+        nvarchar Nome
+        nvarchar Descricao
+        int RecompensaXP
+        datetime2 InicioEm
+        datetime2 FimEm
+        bit Ativo
+        datetime2 CriadoEm
+        nvarchar TipoRequisito
+        int MetaRequisito
+        int TrilhaID FK
+        int ConquistaID FK
+    }
+
+    ParticipacoesDesafio {
+        int ParticipacaoID PK
+        int DesafioID FK
         int UsuarioID FK
-        string Acao
-        string Detalhes
+        datetime2 InscritoEm
+        datetime2 ConcluidoEm
+        nvarchar Status
+    }
+
+    RecompensasConcedidas {
+        int RecompensaID PK
+        int UsuarioID FK
+        nvarchar TipoOrigem
+        int OrigemID
+        int QuantidadeXP
+        int ConquistaID
         datetime2 CriadoEm
     }
 
-    %% Relacionamentos
+    %% 5. ASSISTENTE PEDAGOGICO (CHATBOT IA)
+    ChatConversations {
+        uniqueidentifier ConversationId PK
+        int UsuarioID FK
+        datetime2 CriadoEm
+        datetime2 AtualizadoEm
+    }
+
+    ChatMessages {
+        uniqueidentifier MessageId PK
+        uniqueidentifier ConversationId FK
+        int UsuarioID FK
+        nvarchar Role
+        nvarchar Content
+        datetime2 CreatedAt
+    }
+
+    %% ========================================================================
+    %% RELACIONAMENTOS (FOREIGN KEYS)
+    %% ========================================================================
+
+    %% Seguranca & Auditoria
     Usuarios ||--o{ UsuarioPapeis : "possui"
-    Papeis ||--o{ UsuarioPapeis : "atribuído a"
-    
-    Materias ||--o{ TrilhasAprendizagem : "categoriza"
-    TrilhasAprendizagem ||--o{ Modulos : "contém"
-    Modulos ||--o{ Aulas : "possui"
-    
-    Usuarios ||--o{ ProgressoUsuario : "realiza"
-    Aulas ||--o{ ProgressoUsuario : "registra progresso"
-    
-    Usuarios ||--o{ UsuarioTrilhas : "inscreve-se"
-    TrilhasAprendizagem ||--o{ UsuarioTrilhas : "recebe inscrições"
-    
-    Materias ||--o{ Questoes : "possui"
-    Questoes ||--|{ AlternativasQuestao : "contém"
-    
-    Materias ||--o{ Provas : "gera"
-    Provas ||--|{ ProvaQuestoes : "composta por"
-    Questoes ||--o{ ProvaQuestoes : "incluída em"
-    
-    Usuarios ||--o{ ProvasUsuario : "executa"
-    Provas ||--o{ ProvasUsuario : "gerencia tentativas"
-    
-    ProvasUsuario ||--o{ RespostasProvasUsuario : "contém"
-    AlternativasQuestao ||--o{ RespostasProvasUsuario : "selecionada em"
-    
-    Usuarios ||--|| XPUsuario : "acumula"
-    NiveisGamificacao ||--o{ XPUsuario : "classifica"
-    
-    Usuarios ||--o{ ConquistasUsuario : "conquista"
-    Conquistas ||--o{ ConquistasUsuario : "atribuída a"
-    
-    Usuarios ||--o{ LogsAuditoria : "gera"
+    Papeis ||--o{ UsuarioPapeis : "atribuido_a"
+    Usuarios ||--o{ RefreshTokens : "emite"
+    Usuarios ||--o{ TokensRecuperacaoSenha : "solicita"
+    Usuarios |o--o{ LogsAuditoria : "gera"
+    Usuarios |o--o{ ConfiguracoesPlataforma : "atualiza"
+    Usuarios ||--o{ RevisoesConteudo : "revisa"
+
+    %% Conteudo Pedagogico
+    Materias ||--o{ TrilhasAprendizagem : "agrupa"
+    Usuarios |o--o{ TrilhasAprendizagem : "cria"
+    Usuarios |o--o{ TrilhasAprendizagem : "aprova"
+    TrilhasAprendizagem ||--o{ Modulos : "compoe"
+    Modulos ||--o{ Aulas : "contem"
+    Usuarios |o--o{ Aulas : "cria"
+    Usuarios |o--o{ Aulas : "aprova"
+    Usuarios ||--o{ UsuarioTrilhas : "matricula_em"
+    TrilhasAprendizagem ||--o{ UsuarioTrilhas : "recebe_matriculas"
+    Usuarios ||--o{ ProgressoUsuario : "registra_progresso"
+    Aulas ||--o{ ProgressoUsuario : "concluida_em"
+
+    %% Avaliacoes & Provas
+    Materias ||--o{ Questoes : "classifica"
+    Modulos |o--o{ Questoes : "vincula"
+    TrilhasAprendizagem |o--o{ Questoes : "associa"
+    Aulas |o--o{ Questoes : "referencia"
+    Usuarios |o--o{ Questoes : "cria"
+    Usuarios |o--o{ Questoes : "aprova"
+    Questoes ||--o{ AlternativasQuestao : "possui"
+
+    Materias |o--o{ Provas : "foca"
+    TrilhasAprendizagem |o--o{ Provas : "vincula_trilha"
+    Modulos |o--o{ Provas : "vincula_modulo"
+    Provas ||--o{ ProvaQuestoes : "inclui"
+    Questoes ||--o{ ProvaQuestoes : "compoe"
+    Usuarios ||--o{ ProvasUsuario : "realiza"
+    Provas ||--o{ ProvasUsuario : "possui_tentativas"
+    ProvasUsuario ||--o{ RespostasProvasUsuario : "registra"
+    Questoes ||--o{ RespostasProvasUsuario : "respondida_em"
+    AlternativasQuestao ||--o{ RespostasProvasUsuario : "selecionada_em"
+
+    %% Gamificacao
+    Usuarios ||--o| XPUsuario : "acumula_xp"
+    NiveisGamificacao ||--o{ XPUsuario : "define_nivel"
+    Usuarios ||--o{ HistoricoXP : "movimenta_xp"
+    Usuarios ||--o{ ConquistasUsuario : "desbloqueia"
+    Conquistas ||--o{ ConquistasUsuario : "conquistada_por"
+    Usuarios ||--o{ UsuarioConquistas : "obtem_medalha"
+    Conquistas ||--o{ UsuarioConquistas : "atribuida_a"
+    TrilhasAprendizagem |o--o{ Desafios : "relaciona_desafio"
+    Conquistas |o--o{ Desafios : "premia_com"
+    Desafios ||--o{ ParticipacoesDesafio : "recebe_participantes"
+    Usuarios ||--o{ ParticipacoesDesafio : "participa"
+    Usuarios ||--o{ RecompensasConcedidas : "recebe_recompensa"
+
+    %% Chatbot IA
+    Usuarios ||--o{ ChatConversations : "inicia"
+    ChatConversations ||--o{ ChatMessages : "contem"
