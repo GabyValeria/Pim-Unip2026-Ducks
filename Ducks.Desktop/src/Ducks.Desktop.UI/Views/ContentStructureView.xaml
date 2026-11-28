@@ -1,0 +1,102 @@
+<UserControl x:Class="Ducks.Desktop.UI.Views.ContentStructureView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="clr-namespace:Ducks.Desktop.UI.Controls"
+             FontFamily="{StaticResource AppFont}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,8,24">
+
+            <!-- Seleção da trilha -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Trilha" Style="{StaticResource FieldLabel}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding Trilhas}" SelectedItem="{Binding SelectedTrilha}" DisplayMemberPath="NomeTrilha"/>
+                    <Button Grid.Column="2" Content="Atualizar" Command="{Binding AtualizarCommand}" Margin="12,0,0,0"/>
+                </Grid>
+            </Border>
+
+            <ctl:StatusBanner Margin="0,0,0,16"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Módulos -->
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="Módulos" Style="{StaticResource SectionTitleText}" Margin="0,0,0,14"/>
+                        <DataGrid ItemsSource="{Binding Modulos}" SelectedItem="{Binding SelectedModulo}" MinHeight="170" MaxHeight="260">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" Binding="{Binding IndiceOrdem}" Width="44"/>
+                                <DataGridTextColumn Header="Título" Binding="{Binding Titulo}" Width="*"/>
+                                <DataGridTextColumn Header="Aulas" Binding="{Binding TotalAulas}" Width="60"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <WrapPanel Margin="0,12,0,0">
+                            <Button Content="Subir" Command="{Binding SubirModuloCommand}" Margin="0,0,8,8"/>
+                            <Button Content="Descer" Command="{Binding DescerModuloCommand}" Margin="0,0,8,8"/>
+                            <Button Content="Editar" Command="{Binding EditarModuloCommand}" Margin="0,0,8,8"/>
+                            <Button Content="Enviar para revisão" Command="{Binding EnviarModuloRevisaoCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8"/>
+                            <Button Content="Excluir" Command="{Binding ExcluirModuloCommand}" Style="{StaticResource DangerButton}" Margin="0,0,0,8"/>
+                        </WrapPanel>
+
+                        <Separator Margin="0,8,0,16" Opacity="0.4"/>
+                        <TextBlock Text="Título do módulo (3 a 150 caracteres)" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding ModuloTitulo, UpdateSourceTrigger=PropertyChanged}" MaxLength="150" Margin="0,0,0,12"/>
+                        <TextBlock Text="Descrição" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding ModuloDescricao, UpdateSourceTrigger=PropertyChanged}" MaxLength="2000"
+                                 AcceptsReturn="True" TextWrapping="Wrap" Height="80" VerticalContentAlignment="Top" Margin="0,0,0,14"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Salvar módulo" Command="{Binding SalvarModuloCommand}" Style="{StaticResource PrimaryButton}" Padding="18,12"/>
+                            <Button Content="Novo / limpar" Command="{Binding NovoModuloCommand}" Margin="10,0,0,0" Padding="18,12"/>
+                        </StackPanel>
+                        <TextBlock Text="Módulos novos ou editados ficam em RASCUNHO até serem enviados para revisão." Style="{StaticResource MutedText}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Aulas -->
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Aulas do módulo selecionado" Style="{StaticResource SectionTitleText}" Margin="0,0,0,14"/>
+                        <DataGrid ItemsSource="{Binding Aulas}" SelectedItem="{Binding SelectedAula}" MinHeight="170" MaxHeight="260">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" Binding="{Binding IndiceOrdem}" Width="44"/>
+                                <DataGridTextColumn Header="Título" Binding="{Binding Titulo}" Width="*"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <WrapPanel Margin="0,12,0,0">
+                            <Button Content="Subir" Command="{Binding SubirAulaCommand}" Margin="0,0,8,8"/>
+                            <Button Content="Descer" Command="{Binding DescerAulaCommand}" Margin="0,0,8,8"/>
+                            <Button Content="Editar" Command="{Binding EditarAulaCommand}" Margin="0,0,8,8"/>
+                            <Button Content="Enviar para revisão" Command="{Binding EnviarAulaRevisaoCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8"/>
+                            <Button Content="Excluir" Command="{Binding ExcluirAulaCommand}" Style="{StaticResource DangerButton}" Margin="0,0,0,8"/>
+                        </WrapPanel>
+
+                        <Separator Margin="0,8,0,16" Opacity="0.4"/>
+                        <TextBlock Text="Título da aula (3 a 150 caracteres)" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding AulaTitulo, UpdateSourceTrigger=PropertyChanged}" MaxLength="150" Margin="0,0,0,12"/>
+                        <TextBlock Text="URL do conteúdo (vídeo ou material)" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding AulaUrl, UpdateSourceTrigger=PropertyChanged}" MaxLength="500" Margin="0,0,0,12"/>
+                        <TextBlock Text="Texto da aula" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding AulaConteudo, UpdateSourceTrigger=PropertyChanged}" MaxLength="20000"
+                                 AcceptsReturn="True" TextWrapping="Wrap" Height="96" VerticalContentAlignment="Top"
+                                 VerticalScrollBarVisibility="Auto" Margin="0,0,0,14"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Salvar aula" Command="{Binding SalvarAulaCommand}" Style="{StaticResource PrimaryButton}" Padding="18,12"/>
+                            <Button Content="Nova / limpar" Command="{Binding NovaAulaCommand}" Margin="10,0,0,0" Padding="18,12"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

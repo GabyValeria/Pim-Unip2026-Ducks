@@ -1,0 +1,36 @@
+<UserControl x:Class="Ducks.Desktop.UI.Controls.StatusBanner"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Usa o DataContext herdado (qualquer ViewModelBase): IsLoading, StatusMessage, HasError -->
+    <StackPanel>
+        <ProgressBar IsIndeterminate="True" Height="4" Margin="0,0,0,10" BorderThickness="0"
+                     Background="#E5E7EB" Foreground="{StaticResource AccentBrush}"
+                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
+
+        <Border CornerRadius="14" Padding="14,10"
+                Visibility="{Binding StatusMessage, Converter={StaticResource StringToVis}}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="#EEF2FF"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasError}" Value="True">
+                            <Setter Property="Background" Value="#FEF2F2"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" FontSize="13" FontWeight="Medium">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#3730A3"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasError}" Value="True">
+                                <Setter Property="Foreground" Value="#B91C1C"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Border>
+    </StackPanel>
+</UserControl>

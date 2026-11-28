@@ -1,0 +1,81 @@
+<UserControl x:Class="Ducks.Desktop.UI.Views.ModerationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="clr-namespace:Ducks.Desktop.UI.Controls"
+             FontFamily="{StaticResource AppFont}">
+    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,24">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Abas + atualizar -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <RadioButton Content="Fila de revisão" Style="{StaticResource SegmentStyle}" GroupName="ModeracaoAba"
+                                 IsChecked="{Binding ExibirHistorico, Converter={StaticResource InverseBool}}"/>
+                    <RadioButton Content="Histórico" Style="{StaticResource SegmentStyle}" GroupName="ModeracaoAba"
+                                 IsChecked="{Binding ExibirHistorico}"/>
+                </StackPanel>
+
+                <Border Grid.Column="1" Style="{StaticResource PillGreen}" Margin="10,0,0,0" VerticalAlignment="Center"
+                        Visibility="{Binding TempoRealAtivo, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="● Tempo real ativo" Style="{StaticResource PillText}" Foreground="#166534"/>
+                </Border>
+
+                <Button Grid.Column="3" Content="Atualizar" Command="{Binding AtualizarCommand}"/>
+            </Grid>
+
+            <ctl:StatusBanner Grid.Row="1" Margin="0,0,0,12"/>
+
+            <!-- Fila -->
+            <DataGrid Grid.Row="2" ItemsSource="{Binding FilaModeracao}" SelectedItem="{Binding SelectedItem}"
+                      Visibility="{Binding ExibirFila, Converter={StaticResource BoolToVis}}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="110"/>
+                    <DataGridTextColumn Header="Conteúdo" Binding="{Binding Titulo}" Width="2*"/>
+                    <DataGridTextColumn Header="Autor" Binding="{Binding Autor}" Width="1*"/>
+                    <DataGridTextColumn Header="Enviado em" Binding="{Binding EnviadoEm, StringFormat=dd/MM/yyyy HH:mm}" Width="150"/>
+                    <DataGridTemplateColumn Header="Ações" Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Aprovar" Style="{StaticResource SuccessButton}" Padding="12,6" Margin="0,0,6,0"
+                                            CommandParameter="{Binding}"
+                                            Command="{Binding DataContext.AprovarCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                    <Button Content="Rejeitar" Style="{StaticResource DangerButton}" Padding="12,6" Margin="0,0,6,0"
+                                            CommandParameter="{Binding}"
+                                            Command="{Binding DataContext.RejeitarCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                    <Button Content="Remover" Padding="12,6"
+                                            CommandParameter="{Binding}"
+                                            Command="{Binding DataContext.RemoverCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Histórico -->
+            <DataGrid Grid.Row="2" ItemsSource="{Binding Historico}"
+                      Visibility="{Binding ExibirHistorico, Converter={StaticResource BoolToVis}}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="110"/>
+                    <DataGridTextColumn Header="Conteúdo" Binding="{Binding Titulo}" Width="2*"/>
+                    <DataGridTextColumn Header="Decisão" Binding="{Binding Acao}" Width="120"/>
+                    <DataGridTextColumn Header="Justificativa" Binding="{Binding Justificativa}" Width="2*"/>
+                    <DataGridTextColumn Header="Data" Binding="{Binding EnviadoEm, StringFormat=dd/MM/yyyy HH:mm}" Width="150"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,111 @@
+<UserControl x:Class="Ducks.Desktop.UI.Views.CoursesAndTrailsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="clr-namespace:Ducks.Desktop.UI.Controls"
+             FontFamily="{StaticResource AppFont}">
+    <Grid Margin="0,0,0,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Indicadores -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="28,20" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="Total de Trilhas" Style="{StaticResource MutedText}"/>
+                    <TextBlock Text="{Binding TotalTrilhas}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextBrush}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="28,20" Margin="6,0,6,0">
+                <StackPanel>
+                    <TextBlock Text="Pendentes de Revisão" Style="{StaticResource MutedText}"/>
+                    <TextBlock Text="{Binding TotalPendentes}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextBrush}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="28,20" Margin="12,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="Aprovadas" Style="{StaticResource MutedText}"/>
+                    <TextBlock Text="{Binding TotalAprovadas}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextBrush}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*" MinWidth="300"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Catálogo -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,12,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{Binding FiltroTermo, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filtrar por nome ou descrição"/>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding OpcoesStatus}" SelectedItem="{Binding FiltroStatusSelecionado}" MinWidth="140" Margin="10,0,0,0"/>
+                        <Button Grid.Column="2" Content="Atualizar" Command="{Binding AtualizarCommand}" Margin="10,0,0,0"/>
+                    </Grid>
+
+                    <ctl:StatusBanner Grid.Row="1" Margin="0,0,0,12"/>
+
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding Itens}" SelectedItem="{Binding SelectedItem}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding TrilhaID}" Width="60"/>
+                            <DataGridTextColumn Header="Trilha" Binding="{Binding NomeTrilha}" Width="1.5*"/>
+                            <DataGridTextColumn Header="Matéria" Binding="{Binding MateriaID}" Width="80"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110"/>
+                            <DataGridTextColumn Header="Atualizada em" Binding="{Binding AtualizadoEm, StringFormat=dd/MM/yyyy HH:mm}" Width="140"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,14,0,0">
+                        <Button Content="Editar trilha" Command="{Binding EditarTrilhaCommand}"/>
+                        <Button Content="Enviar para revisão" Command="{Binding EnviarRevisaoCommand}" Style="{StaticResource PrimaryButton}" Margin="10,0,0,0"/>
+                        <Button Content="Excluir trilha" Command="{Binding ExcluirTrilhaCommand}" Style="{StaticResource DangerButton}" Margin="10,0,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Nova trilha -->
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="12,0,0,0" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="{Binding TituloFormulario}" Style="{StaticResource SectionTitleText}" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="Nome (3 a 150 caracteres)" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding NovaTrilhaNome, UpdateSourceTrigger=PropertyChanged}" MaxLength="150" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Descrição" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding NovaTrilhaDescricao, UpdateSourceTrigger=PropertyChanged}" MaxLength="2000"
+                             AcceptsReturn="True" TextWrapping="Wrap" Height="96" VerticalContentAlignment="Top" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="ID da matéria" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding NovaTrilhaMateriaId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="{Binding TextoBotaoSalvar}" Style="{StaticResource PrimaryButton}" Command="{Binding CriarTrilhaCommand}" Padding="18,12"/>
+                        <Button Content="Cancelar edição" Command="{Binding CancelarEdicaoCommand}" Margin="10,0,0,0" Padding="18,12"
+                                Visibility="{Binding EditandoTrilha, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
+                    <TextBlock Text="A trilha é criada como PENDENTE e segue para revisão." Style="{StaticResource MutedText}" FontSize="12" Margin="0,12,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

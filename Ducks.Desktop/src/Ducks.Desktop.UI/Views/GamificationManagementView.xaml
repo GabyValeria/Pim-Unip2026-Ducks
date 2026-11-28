@@ -1,0 +1,179 @@
+<UserControl x:Class="Ducks.Desktop.UI.Views.GamificationManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="clr-namespace:Ducks.Desktop.UI.Controls"
+             FontFamily="{StaticResource AppFont}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,8,24">
+
+            <ctl:StatusBanner Margin="0,0,0,16"/>
+
+            <!-- ============ Medalhas ============ -->
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*" MinWidth="320"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,12,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,14">
+                            <TextBlock Text="Medalhas" Style="{StaticResource SectionTitleText}" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Atualizar" Command="{Binding AtualizarCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Excluir selecionada" Style="{StaticResource DangerButton}" Command="{Binding ExcluirMedalhaCommand}"/>
+                            </StackPanel>
+                        </Grid>
+                        <DataGrid ItemsSource="{Binding Badges}" SelectedItem="{Binding SelectedBadge}" MinHeight="220" MaxHeight="320">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding ConquistaID}" Width="60"/>
+                                <DataGridTextColumn Header="Nome" Binding="{Binding Nome}" Width="1.2*"/>
+                                <DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="1.6*"/>
+                                <DataGridTextColumn Header="XP necessário" Binding="{Binding XPNecessario}" Width="110"/>
+                                <DataGridTextColumn Header="Concedidas" Binding="{Binding TotalConcedidas}" Width="100"/>
+                                <DataGridCheckBoxColumn Header="Ativa" Binding="{Binding Ativa, Mode=OneWay}" IsReadOnly="True" Width="60"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="12,0,0,0">
+                    <StackPanel DataContext="{Binding BadgeForm}">
+                        <TextBlock Text="{Binding Titulo}" Style="{StaticResource SectionTitleText}" Margin="0,0,0,14"/>
+                        <TextBlock Text="Nome" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding Nome, UpdateSourceTrigger=PropertyChanged}" MaxLength="120" Margin="0,6,0,12"/>
+                        <TextBlock Text="Descrição" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding Descricao, UpdateSourceTrigger=PropertyChanged}" MaxLength="1000" Height="80"
+                                 AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top" Margin="0,6,0,12"/>
+                        <TextBlock Text="XP necessário" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding XpNecessario, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,12"/>
+                        <CheckBox Content="Medalha ativa" IsChecked="{Binding Ativa}" Margin="0,0,0,16"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Salvar" Style="{StaticResource PrimaryButton}" MinWidth="110" Margin="0,0,8,0"
+                                    Command="{Binding DataContext.SalvarMedalhaCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                            <Button Content="Nova"
+                                    Command="{Binding DataContext.NovaMedalhaCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ============ Desafios ============ -->
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*" MinWidth="320"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,12,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,14">
+                            <TextBlock Text="Desafios" Style="{StaticResource SectionTitleText}" VerticalAlignment="Center"/>
+                            <Button Content="Excluir selecionado" Style="{StaticResource DangerButton}"
+                                    HorizontalAlignment="Right" Command="{Binding ExcluirDesafioCommand}"/>
+                        </Grid>
+                        <DataGrid ItemsSource="{Binding Desafios}" SelectedItem="{Binding SelectedDesafio}" MinHeight="220" MaxHeight="320">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding DesafioID}" Width="60"/>
+                                <DataGridTextColumn Header="Nome" Binding="{Binding Nome}" Width="1.2*"/>
+                                <DataGridTextColumn Header="Recompensa XP" Binding="{Binding RecompensaXP}" Width="120"/>
+                                <DataGridTextColumn Header="Requisito" Binding="{Binding TipoRequisito}" Width="1.2*"/>
+                                <DataGridTextColumn Header="Meta" Binding="{Binding MetaRequisito}" Width="70"/>
+                                <DataGridTextColumn Header="Início" Binding="{Binding InicioEm, StringFormat=dd/MM/yyyy}" Width="95"/>
+                                <DataGridTextColumn Header="Fim" Binding="{Binding FimEm, StringFormat=dd/MM/yyyy}" Width="95"/>
+                                <DataGridCheckBoxColumn Header="Ativo" Binding="{Binding Ativo, Mode=OneWay}" IsReadOnly="True" Width="60"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="12,0,0,0">
+                    <StackPanel DataContext="{Binding DesafioForm}">
+                        <TextBlock Text="{Binding Titulo}" Style="{StaticResource SectionTitleText}" Margin="0,0,0,14"/>
+                        <TextBlock Text="Nome" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding Nome, UpdateSourceTrigger=PropertyChanged}" MaxLength="120" Margin="0,6,0,12"/>
+                        <TextBlock Text="Descrição" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding Descricao, UpdateSourceTrigger=PropertyChanged}" MaxLength="1000" Height="70"
+                                 AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top" Margin="0,6,0,12"/>
+                        <TextBlock Text="Recompensa (XP)" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding RecompensaXp, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,12"/>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Início" Style="{StaticResource FieldLabel}"/>
+                                <DatePicker SelectedDate="{Binding InicioEm}" Margin="0,6,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Fim" Style="{StaticResource FieldLabel}"/>
+                                <DatePicker SelectedDate="{Binding FimEm}" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Tipo de requisito" Style="{StaticResource FieldLabel}"/>
+                        <ComboBox ItemsSource="{Binding DataContext.TiposRequisitoDisponiveis, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  SelectedItem="{Binding TipoRequisito}" Margin="0,6,0,12"/>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Meta" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding MetaRequisito, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="ID trilha" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding TrilhaId, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" Margin="0,6,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="ID medalha" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding ConquistaId, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <CheckBox Content="Desafio ativo" IsChecked="{Binding Ativo}" Margin="0,0,0,16"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Salvar" Style="{StaticResource PrimaryButton}" MinWidth="110" Margin="0,0,8,0"
+                                    Command="{Binding DataContext.SalvarDesafioCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                            <Button Content="Novo"
+                                    Command="{Binding DataContext.NovoDesafioCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ============ Medalhas por usuário ============ -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Medalhas de um usuário" Style="{StaticResource SectionTitleText}" Margin="0,0,0,14"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="ID do usuário:" Style="{StaticResource FieldLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox Text="{Binding UsuarioConsultaId, UpdateSourceTrigger=PropertyChanged}" Width="120">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding ConsultarMedalhasUsuarioCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <Button Content="Consultar" Style="{StaticResource PrimaryButton}" Margin="10,0,0,0"
+                                Command="{Binding ConsultarMedalhasUsuarioCommand}"/>
+                    </StackPanel>
+                    <DataGrid ItemsSource="{Binding MedalhasDoUsuario}" MinHeight="120" MaxHeight="240">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Medalha" Binding="{Binding Nome}" Width="1.2*"/>
+                            <DataGridTextColumn Header="Descrição" Binding="{Binding Descricao}" Width="2*"/>
+                            <DataGridTextColumn Header="Conquistada em" Binding="{Binding ConquistadaEm, StringFormat=dd/MM/yyyy HH:mm}" Width="160"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
